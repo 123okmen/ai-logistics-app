@@ -891,35 +891,18 @@
                     <h2>Cấu hình đầu vào</h2>
                 </div>
                 <div class="input-group">
-                    <label class="input-label" for="provider-select">Dịch vụ AI:</label>
-                    <select id="provider-select" class="input-field" style="cursor: pointer;">
-                        <option value="openai">OpenAI (gpt-4o-mini)</option>
-                        <option value="gemini">Google Gemini (Miễn phí - gemini-1.5-flash)</option>
-                        <option value="groq">Groq Cloud (Miễn phí - Llama 3.2 Vision)</option>
-                        <option value="custom">Custom Endpoint (Tự định nghĩa)</option>
-                    </select>
-                </div>
-                <div class="input-group">
                     <label class="input-label" for="api-key-input">
-                        <span id="key-label-text">API Key:</span>
-                        <a href="https://platform.openai.com/" id="key-link" target="_blank" style="font-size: 0.75rem; color: var(--accent-secondary); text-decoration: none; font-weight: 600;">Lấy Key</a>
+                        <span>Gemini API Key:</span>
+                        <a href="https://aistudio.google.com/" target="_blank" style="font-size: 0.75rem; color: var(--accent-secondary); text-decoration: none; font-weight: 600;">Lấy Key Miễn Phí</a>
                     </label>
-                    <input type="password" id="api-key-input" class="input-field" placeholder="sk-proj-...">
+                    <input type="password" id="api-key-input" class="input-field" placeholder="Nhập API Key hoặc dùng mặc định...">
                 </div>
                 <div class="input-group">
                     <label class="input-label" for="exchange-rate-input">
-                        <span id="rate-label-text">Tỷ giá quy đổi (CNY -> VND):</span>
+                        <span id="rate-label-text">Tỷ giá quy đổi (Ví dụ CNY -> VND):</span>
                         <span id="rate-display" style="font-weight: bold; color: var(--accent-primary);">3,500đ</span>
                     </label>
                     <input type="number" id="exchange-rate-input" class="input-field" value="3500">
-                </div>
-                <div class="input-group" id="endpoint-group" style="display: none;">
-                    <label class="input-label" for="custom-endpoint">API Endpoint:</label>
-                    <input type="text" id="custom-endpoint" class="input-field" placeholder="https://api.openai.com" value="https://api.openai.com">
-                </div>
-                <div class="input-group" id="model-group" style="display: none;">
-                    <label class="input-label" for="custom-model">Model Name:</label>
-                    <input type="text" id="custom-model" class="input-field" placeholder="gpt-4o-mini" value="gpt-4o-mini">
                 </div>
             </div>
 
@@ -1242,7 +1225,6 @@
         // DOM elements binding
         const apiKeyInput = document.getElementById('api-key-input');
         const exchangeRateInput = document.getElementById('exchange-rate-input');
-        const customEndpointInput = document.getElementById('custom-endpoint');
         const rateDisplay = document.getElementById('rate-display');
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
@@ -1250,45 +1232,6 @@
         const previewBox = document.getElementById('preview-box');
         const previewImage = document.getElementById('preview-image');
         const btnClearFile = document.getElementById('btn-clear-file');
-        
-        // AI Provider configuration elements
-        const providerSelect = document.getElementById('provider-select');
-        const customModelInput = document.getElementById('custom-model');
-        const endpointGroup = document.getElementById('endpoint-group');
-        const modelGroup = document.getElementById('model-group');
-        const keyLabelText = document.getElementById('key-label-text');
-        const keyLink = document.getElementById('key-link');
-
-        const providersConfig = {
-            openai: {
-                endpoint: 'https://api.openai.com',
-                model: 'gpt-4o-mini',
-                keyLabel: 'OpenAI API Key:',
-                keyLink: 'https://platform.openai.com/',
-                placeholder: 'sk-proj-...'
-            },
-            gemini: {
-                endpoint: 'https://generativelanguage.googleapis.com/v1beta/openai',
-                model: 'gemini-2.5-flash',
-                keyLabel: 'Gemini API Key:',
-                keyLink: 'https://aistudio.google.com/',
-                placeholder: 'AIzaSy...'
-            },
-            groq: {
-                endpoint: 'https://api.groq.com/openai',
-                model: 'llama-3.2-11b-vision-preview',
-                keyLabel: 'Groq API Key:',
-                keyLink: 'https://console.groq.com/',
-                placeholder: 'gsk_...'
-            },
-            custom: {
-                endpoint: 'https://api.openai.com',
-                model: 'gpt-4o-mini',
-                keyLabel: 'Custom API Key:',
-                keyLink: '',
-                placeholder: 'Nhập API key của bạn...'
-            }
-        };
         
         // Views
         const emptyView = document.getElementById('empty-view');
@@ -1333,28 +1276,14 @@
 
         // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
-            // Load credentials and provider
-            const savedProvider = localStorage.getItem('api_provider') || 'openai';
-            providerSelect.value = savedProvider;
-            
-            const savedApiKey = localStorage.getItem(`api_key_${savedProvider}`) || localStorage.getItem('openai_api_key');
+            // Load credentials (only Gemini)
+            const savedApiKey = localStorage.getItem('gemini_api_key');
             if (savedApiKey) {
                 apiKeyInput.value = savedApiKey;
             } else {
-                if (savedProvider === 'openai') {
-                    const defaultKey = 'sk-proj-' + 'ag6CTFfc4EbDz0xGcQu8Ig7' + 'iXyHsPKAugFgg4MwlrYdxy' + 'BuNBKnFvypO0PJcLNm0x6fg_vK' + 'E0LT3BlbkFJRQNJQTKvEnYspyq' + 'HPuOrPad3M9dkYl6N7Zk6qp1CtJh43Y6QeGNrGN2Xvc5unq8XLkX3OH0goA';
-                    apiKeyInput.value = defaultKey;
-                    localStorage.setItem('openai_api_key', defaultKey);
-                    localStorage.setItem('api_key_openai', defaultKey);
-                } else if (savedProvider === 'groq') {
-                    const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
-                    apiKeyInput.value = defaultGroq;
-                    localStorage.setItem('api_key_groq', defaultGroq);
-                } else if (savedProvider === 'gemini') {
-                    const defaultGemini = 'AQ.' + 'Ab8RN6K_W6g' + 'KUOEEseWWuTs' + '51xmi17tZ0HE1' + 'w4V2QZz0-XrTOA';
-                    apiKeyInput.value = defaultGemini;
-                    localStorage.setItem('api_key_gemini', defaultGemini);
-                }
+                const defaultGemini = 'AQ.' + 'Ab8RN6K_W6g' + 'KUOEEseWWuTs' + '51xmi17tZ0HE1' + 'w4V2QZz0-XrTOA';
+                apiKeyInput.value = defaultGemini;
+                localStorage.setItem('gemini_api_key', defaultGemini);
             }
             
             const savedRate = localStorage.getItem('exchange_rate');
@@ -1363,68 +1292,15 @@
                 updateRateDisplay(savedRate);
             }
 
-            const savedEndpoint = localStorage.getItem('api_endpoint') || 'https://api.openai.com';
-            customEndpointInput.value = savedEndpoint;
-
-            const savedModel = localStorage.getItem('api_model') || 'gpt-4o-mini';
-            customModelInput.value = savedModel;
-
             const savedHistory = localStorage.getItem('scan_history');
             if (savedHistory) {
                 scanHistory = JSON.parse(savedHistory);
                 renderHistoryList();
             }
 
-            // Apply configuration
-            applyProviderConfig(savedProvider);
-
             lucide.createIcons();
             setupEventListeners();
         });
-
-        function applyProviderConfig(provider) {
-            const config = providersConfig[provider] || providersConfig.openai;
-            
-            if (provider === 'custom') {
-                endpointGroup.style.display = 'block';
-                modelGroup.style.display = 'block';
-                customEndpointInput.value = localStorage.getItem('api_endpoint') || 'https://api.openai.com';
-                customModelInput.value = localStorage.getItem('api_model') || 'gpt-4o-mini';
-            } else {
-                endpointGroup.style.display = 'none';
-                modelGroup.style.display = 'none';
-                customEndpointInput.value = config.endpoint;
-                customModelInput.value = config.model;
-            }
-            
-            keyLabelText.textContent = config.keyLabel;
-            if (config.keyLink) {
-                keyLink.href = config.keyLink;
-                keyLink.style.display = 'inline';
-            } else {
-                keyLink.style.display = 'none';
-            }
-            
-            apiKeyInput.placeholder = config.placeholder;
-            
-            const cachedKey = localStorage.getItem(`api_key_${provider}`);
-            if (cachedKey) {
-                apiKeyInput.value = cachedKey;
-            } else {
-                if (provider === 'openai') {
-                    const defaultKey = 'sk-proj-' + 'ag6CTFfc4EbDz0xGcQu8Ig7' + 'iXyHsPKAugFgg4MwlrYdxy' + 'BuNBKnFvypO0PJcLNm0x6fg_vK' + 'E0LT3BlbkFJRQNJQTKvEnYspyq' + 'HPuOrPad3M9dkYl6N7Zk6qp1CtJh43Y6QeGNrGN2Xvc5unq8XLkX3OH0goA';
-                    apiKeyInput.value = defaultKey;
-                } else if (provider === 'groq') {
-                    const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
-                    apiKeyInput.value = defaultGroq;
-                } else if (provider === 'gemini') {
-                    const defaultGemini = 'AQ.' + 'Ab8RN6K_W6g' + 'KUOEEseWWuTs' + '51xmi17tZ0HE1' + 'w4V2QZz0-XrTOA';
-                    apiKeyInput.value = defaultGemini;
-                } else {
-                    apiKeyInput.value = '';
-                }
-            }
-        }
 
         function updateRateDisplay(val) {
             rateDisplay.textContent = new Intl.NumberFormat('vi-VN').format(val) + 'đ';
@@ -1457,19 +1333,10 @@
                 });
             });
 
-            // Provider select change handler
-            providerSelect.addEventListener('change', (e) => {
-                const provider = e.target.value;
-                localStorage.setItem('api_provider', provider);
-                applyProviderConfig(provider);
-            });
-
             // Settings input handlers
             apiKeyInput.addEventListener('input', (e) => {
                 const key = e.target.value.trim();
-                const provider = providerSelect.value;
-                localStorage.setItem(`api_key_${provider}`, key);
-                localStorage.setItem('openai_api_key', key);
+                localStorage.setItem('gemini_api_key', key);
             });
 
             exchangeRateInput.addEventListener('input', (e) => {
@@ -1497,15 +1364,7 @@
                 }
             });
 
-            customEndpointInput.addEventListener('input', (e) => {
-                const endpoint = e.target.value.trim();
-                localStorage.setItem('api_endpoint', endpoint);
-            });
 
-            customModelInput.addEventListener('input', (e) => {
-                const model = e.target.value.trim();
-                localStorage.setItem('api_model', model);
-            });
 
             btnOpenApiModal.addEventListener('click', () => {
                 apiKeyInput.focus();
@@ -1751,11 +1610,11 @@
             };
         }
 
-        // Calling OpenAI API
+        // Call Google Gemini API
         async function processDocument() {
             const apiKey = apiKeyInput.value.trim();
             if (!apiKey) {
-                showToast("Vui lòng nhập OpenAI API Key!");
+                showToast("Vui lòng nhập Gemini API Key!");
                 apiKeyInput.focus();
                 return;
             }
@@ -1815,56 +1674,13 @@
             setStepStatus(step3, 'pending');
             setStepStatus(step4, 'pending');
 
-            const apiEndpoint = customEndpointInput.value.trim() || 'https://api.openai.com';
-            const modelName = customModelInput.value.trim() || 'gpt-4o-mini';
+            const modelName = 'gemini-2.5-flash';
 
             try {
                 setStepStatus(step2, 'completed');
                 setStepStatus(step3, 'active');
 
-                let responseData;
-                const isGemini = providerSelect.value === 'gemini';
-
-                if (isGemini) {
-                    responseData = await callGeminiNative(apiKey, modelName, activeDocType, userContent);
-                } else {
-                    const fetchUrl = `${apiEndpoint}/v1/chat/completions`;
-
-                    const response = await fetch(fetchUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: modelName,
-                            response_format: { type: 'json_object' },
-                            temperature: 0.1,
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: promptTemplates[activeDocType]
-                                },
-                                {
-                                    role: 'user',
-                                    content: userContent
-                                }
-                            ]
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errText = await response.text();
-                        let errMsg = `HTTP ${response.status}`;
-                        try {
-                            const errJson = JSON.parse(errText);
-                            errMsg = errJson.error?.message || errMsg;
-                        } catch(e) {}
-                        throw new Error(errMsg);
-                    }
-
-                    responseData = await response.json();
-                }
+                const responseData = await callGeminiNative(apiKey, modelName, activeDocType, userContent);
 
                 setStepStatus(step3, 'completed');
                 setStepStatus(step4, 'active');
