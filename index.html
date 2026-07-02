@@ -1201,6 +1201,16 @@
             request_analyzer: `Bạn là trợ lý AI chuyên nghiệp phân tích tin nhắn/yêu cầu đặt hàng (booking request) của khách hàng gửi cho công ty logistics Việt - Trung.
             Nhiệm vụ của bạn là đọc kỹ đoạn chat hoặc văn bản yêu cầu (hoặc ảnh chụp màn hình chat Zalo/WeChat) và phân tích thành cấu trúc dữ liệu lên đơn hàng.
             Mô tả hàng hóa cần được dịch nghĩa rõ ràng sang tiếng Việt.
+
+            ⚠️ HƯỚNG DẪN ƯỚC LƯỢNG BÁO GIÁ DỰ KIẾN (Nếu trong tin nhắn không có báo giá sẵn):
+            Hãy căn cứ vào trọng lượng (weight_kg), thể tích (volume_cbm), mặt hàng và phương thức vận chuyển để tự ước lượng báo giá cước chính và phụ phí một cách chuyên nghiệp và hợp lý:
+            - Nếu đi Đường bộ (Lô nhỏ/Tiểu ngạch): Cước chính khoảng 4,000đ - 8,000đ/kg hoặc 2,500,000đ - 3,500,000đ/CBM (Khối). Hãy tính cước chính dựa trên tổng cân nặng hoặc thể tích (cái nào lớn hơn). Ví dụ: 400kg -> cước khoảng 2,400,000đ.
+            - Nếu đi Đường biển: Cước chính khoảng 1,500,000đ - 2,500,000đ/CBM.
+            - Phụ phí bốc xếp/nâng hạ: 200,000đ - 500,000đ.
+            - Phí thông quan/khai báo hải quan (nếu là chính ngạch): 1,500,000đ - 2,000,000đ.
+            - Phụ phí đóng gói gỗ (nếu khách ghi hàng dễ vỡ/máy móc/cần bảo quản): 150 - 300 RMB (~500,000đ - 1,000,000đ).
+            Hãy luôn ghi rõ đơn vị tiền tệ (đ hoặc VND, USD, CNY).
+
             Trả về cấu trúc JSON duy nhất:
             {
               "customer_name": "Tên khách hàng hoặc tên tài khoản nhắn tin (nếu có, ví dụ: Anh Hùng, Chị Lan)",
@@ -1212,6 +1222,10 @@
               "volume_cbm": "Thể tích ước tính/thực tế tính bằng CBM (kiểu số hoặc chữ, ví dụ: 3.5 hoặc '3 khối')",
               "shipping_method": "Phương thức vận chuyển đề xuất (Đường bộ, Đường biển, Chính ngạch, Tiểu ngạch...)",
               "delivery_deadline": "Hạn giao hàng hoặc yêu cầu thời gian (ví dụ: Giao trước thứ 5 tuần sau, Giao gấp...)",
+              "freight_quote": "Báo giá cước chính vận chuyển dự kiến (ví dụ: '2,400,000đ' hoặc '450 USD')",
+              "other_fees": "Các phụ phí khác như thông quan, nâng hạ, đóng gỗ dự kiến (ví dụ: 'Phí nâng hạ: 200,000đ, Phí đóng gỗ: 600,000đ')",
+              "total_cost": "Tổng chi phí dự kiến tạm tính (ví dụ: '3,200,000đ')",
+              "quote_details": "Tóm tắt điều khoản/lưu ý báo giá (ví dụ: Giá chưa gồm VAT, tính theo cân thực tế tại kho, miễn phí bốc xếp tại kho...)",
               "notes": "Các ghi chú đặc biệt khác như: yêu cầu đóng gỗ, đóng pallet, báo giá trước khi đi, thanh toán đầu nhận..."
             }`
         };
@@ -2082,7 +2096,7 @@
                 </div>
             `;
 
-            // Addresses row handles cargo and limits
+            // Addresses row handles cargo, limits, and pricing quotes
             dynamicAddressesGrid.innerHTML = `
                 <div class="meta-item">
                     <span class="meta-label">Mô tả hàng hóa</span>
@@ -2091,6 +2105,22 @@
                 <div class="meta-item">
                     <span class="meta-label">Hạn giao hàng yêu cầu</span>
                     <span class="meta-val" contenteditable="true" data-key="delivery_deadline" id="b-deadline" style="font-size: 1rem; font-weight: 500; color: #f59e0b;">${escapeHtml(currentExtractedData.delivery_deadline || 'Không có')}</span>
+                </div>
+                <div class="meta-item" style="grid-column: span 1;">
+                    <span class="meta-label" style="color: #10b981; font-weight: 600;"><i data-lucide="calculator" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Cước vận chuyển dự kiến</span>
+                    <span class="meta-val" contenteditable="true" data-key="freight_quote" id="b-freight" style="font-size: 1.05rem; font-weight: 600; color: #10b981;">${escapeHtml(currentExtractedData.freight_quote || 'Chưa báo giá')}</span>
+                </div>
+                <div class="meta-item" style="grid-column: span 1;">
+                    <span class="meta-label" style="color: #a78bfa; font-weight: 600;"><i data-lucide="coins" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Phụ phí & Phí khác</span>
+                    <span class="meta-val" contenteditable="true" data-key="other_fees" id="b-other-fees" style="font-size: 1.05rem; font-weight: 600; color: #a78bfa;">${escapeHtml(currentExtractedData.other_fees || 'Không có')}</span>
+                </div>
+                <div class="meta-item" style="grid-column: span 2;">
+                    <span class="meta-label" style="color: #fbbf24; font-weight: 600;"><i data-lucide="wallet" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Tổng chi phí dự kiến tạm tính</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_cost" id="b-total-cost" style="font-size: 1.2rem; font-weight: bold; color: #fbbf24;">${escapeHtml(currentExtractedData.total_cost || 'Liên hệ báo giá')}</span>
+                </div>
+                <div class="meta-item" style="grid-column: span 2; background: rgba(255,255,255,0.02); border-left: 3px solid #fbbf24; padding-left: 0.75rem;">
+                    <span class="meta-label" style="font-weight: 600;">Điều khoản / Chi tiết báo giá</span>
+                    <span class="meta-val" contenteditable="true" data-key="quote_details" id="b-quote-details" style="font-size: 0.9rem; font-style: italic; color: var(--text-muted); display: block; line-height: 1.4;">${escapeHtml(currentExtractedData.quote_details || 'Báo giá chưa bao gồm thuế phí hải quan.')}</span>
                 </div>
             `;
 
@@ -2121,6 +2151,7 @@
                     setTimeout(syncAndRegenerateConfirmText, 50);
                 });
             });
+            lucide.createIcons();
         }
 
         // Generate text confirmation for the customer
@@ -2128,15 +2159,22 @@
             if (!currentExtractedData) return;
             const c = currentExtractedData;
             
-            const msg = `Kính gửi ${c.customer_name || 'anh/chị'}, em xin gửi thông tin xác nhận lại booking vận chuyển:
+            const msg = `Kính gửi ${c.customer_name || 'anh/chị'}, em xin gửi thông tin xác nhận lại booking vận chuyển & báo giá dự kiến:
 - Mặt hàng: ${c.cargo_description || 'N/A'}
 - Quy cách: ${c.quantity || 'N/A'}
 - Trọng lượng: ${c.weight_kg || '0'} kg
 - Thể tích: ${c.volume_cbm || '0'} CBM
 - Tuyến đi: ${c.pickup_location || 'N/A'} ➔ ${c.delivery_location || 'N/A'}
 - Hình thức: ${c.shipping_method || 'N/A'}
-- Yêu cầu hạn giao: ${c.delivery_deadline || 'N/A'}
-${c.notes ? `- Lưu ý thêm: ${c.notes}` : ''}
+- Hạn giao hàng: ${c.delivery_deadline || 'N/A'}
+------------------------------------
+💰 BÁO GIÁ DỊCH VỤ DỰ KIẾN:
+- Cước vận chuyển chính: ${c.freight_quote || 'Chưa có'}
+- Phụ phí & phí khác: ${c.other_fees || 'Không có'}
+➔ Tổng chi phí tạm tính: ${c.total_cost || 'Liên hệ báo giá'}
+* Lưu ý: ${c.quote_details || 'Giá tính theo cân thực tế khi hàng về kho.'}
+------------------------------------
+${c.notes ? `* Lưu ý đặc biệt: ${c.notes}` : ''}
 Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
 
             valConfirmText.value = msg;
@@ -2153,6 +2191,11 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
             const qty = document.getElementById('b-qty')?.textContent.trim();
             const weight = document.getElementById('b-weight')?.textContent.trim();
             const vol = document.getElementById('b-volume')?.textContent.trim();
+            
+            const freight = document.getElementById('b-freight')?.textContent.trim();
+            const other = document.getElementById('b-other-fees')?.textContent.trim();
+            const total = document.getElementById('b-total-cost')?.textContent.trim();
+            const details = document.getElementById('b-quote-details')?.textContent.trim();
 
             if (currentExtractedData) {
                 currentExtractedData.customer_name = cust;
@@ -2164,6 +2207,11 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
                 currentExtractedData.quantity = qty;
                 currentExtractedData.weight_kg = weight;
                 currentExtractedData.volume_cbm = vol;
+                
+                currentExtractedData.freight_quote = freight;
+                currentExtractedData.other_fees = other;
+                currentExtractedData.total_cost = total;
+                currentExtractedData.quote_details = details;
                 
                 generateConfirmationMessage();
                 jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
@@ -2461,6 +2509,10 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
                 csvContent += `Trọng lượng (kg),"${(currentExtractedData.weight_kg || '').replace(/"/g, '""')}"\n`;
                 csvContent += `Thể tích (CBM),"${(currentExtractedData.volume_cbm || '').replace(/"/g, '""')}"\n`;
                 csvContent += `Hạn giao hàng,"${(currentExtractedData.delivery_deadline || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Cước chính dự kiến,"${(currentExtractedData.freight_quote || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Phụ phí dự kiến,"${(currentExtractedData.other_fees || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Tổng chi phí dự kiến,"${(currentExtractedData.total_cost || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Chi tiết báo giá,"${(currentExtractedData.quote_details || '').replace(/"/g, '""')}"\n`;
                 csvContent += `Ghi chú,"${(currentExtractedData.notes || '').replace(/"/g, '""')}"\n`;
             }
 
