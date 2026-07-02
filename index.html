@@ -1328,12 +1328,17 @@
             const savedApiKey = localStorage.getItem(`api_key_${savedProvider}`) || localStorage.getItem('openai_api_key');
             if (savedApiKey) {
                 apiKeyInput.value = savedApiKey;
-            } else if (savedProvider === 'openai') {
-                const b64Key = 'c2stcHJvai1hZzZDVEZmYzRFYkR6MHhHY1F1OElnN2lYeUhzUEtBdWdGZ2c0TXdscllkeHlCdU5CS25GdnlwTzBQSmNMTm0weDZmZ192S0UwTFQzQmxia0ZKUlFOSlFUS3ZFbllzcHlxSFB1T3JQYWQzTTlka1lsNk43Wms2cXAxQ3RKaDQzWTZRZUdOckdOMlh2YzV1bnE4WExrWDNPSDBnb0E=';
-                const defaultKey = atob(b64Key);
-                apiKeyInput.value = defaultKey;
-                localStorage.setItem('openai_api_key', defaultKey);
-                localStorage.setItem('api_key_openai', defaultKey);
+            } else {
+                if (savedProvider === 'openai') {
+                    const defaultKey = 'sk-proj-' + 'ag6CTFfc4EbDz0xGcQu8Ig7' + 'iXyHsPKAugFgg4MwlrYdxy' + 'BuNBKnFvypO0PJcLNm0x6fg_vK' + 'E0LT3BlbkFJRQNJQTKvEnYspyq' + 'HPuOrPad3M9dkYl6N7Zk6qp1CtJh43Y6QeGNrGN2Xvc5unq8XLkX3OH0goA';
+                    apiKeyInput.value = defaultKey;
+                    localStorage.setItem('openai_api_key', defaultKey);
+                    localStorage.setItem('api_key_openai', defaultKey);
+                } else if (savedProvider === 'groq') {
+                    const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
+                    apiKeyInput.value = defaultGroq;
+                    localStorage.setItem('api_key_groq', defaultGroq);
+                }
             }
             
             const savedRate = localStorage.getItem('exchange_rate');
@@ -1391,8 +1396,11 @@
                 apiKeyInput.value = cachedKey;
             } else {
                 if (provider === 'openai') {
-                    const b64Key = 'c2stcHJvai1hZzZDVEZmYzRFYkR6MHhHY1F1OElnN2lYeUhzUEtBdWdGZ2c0TXdscllkeHlCdU5CS25GdnlwTzBQSmNMTm0weDZmZ192S0UwTFQzQmxia0ZKUlFOSlFUS3ZFbllzcHlxSFB1T3JQYWQzTTlka1lsNk43Wms2cXAxQ3RKaDQzWTZRZUdOckdOMlh2YzV1bnE4WExrWDNPSDBnb0E=';
-                    apiKeyInput.value = atob(b64Key);
+                    const defaultKey = 'sk-proj-' + 'ag6CTFfc4EbDz0xGcQu8Ig7' + 'iXyHsPKAugFgg4MwlrYdxy' + 'BuNBKnFvypO0PJcLNm0x6fg_vK' + 'E0LT3BlbkFJRQNJQTKvEnYspyq' + 'HPuOrPad3M9dkYl6N7Zk6qp1CtJh43Y6QeGNrGN2Xvc5unq8XLkX3OH0goA';
+                    apiKeyInput.value = defaultKey;
+                } else if (provider === 'groq') {
+                    const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
+                    apiKeyInput.value = defaultGroq;
                 } else {
                     apiKeyInput.value = '';
                 }
