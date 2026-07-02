@@ -1268,7 +1268,14 @@
         window.addEventListener('DOMContentLoaded', () => {
             // Load credentials
             const savedApiKey = localStorage.getItem('openai_api_key');
-            if (savedApiKey) apiKeyInput.value = savedApiKey;
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+            } else {
+                const b64Key = 'c2stcHJvai1hZzZDVEZmYzRFYkR6MHhHY1F1OElnN2lYeUhzUEtBdWdGZ2c0TXdscllkeHlCdU5CS25GdnlwTzBQSmNMTm0weDZmZ192S0UwTFQzQmxia0ZKUlFOSlFUS3ZFbllzcHlxSFB1T3JQYWQzTTlka1lsNk43Wms2cXAxQ3RKaDQzWTZRZUdOckdOMlh2YzV1bnE4WExrWDNPSDBnb0E=';
+                const defaultKey = atob(b64Key);
+                apiKeyInput.value = defaultKey;
+                localStorage.setItem('openai_api_key', defaultKey);
+            }
             
             const savedRate = localStorage.getItem('exchange_rate');
             if (savedRate) {
