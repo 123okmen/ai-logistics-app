@@ -1338,6 +1338,10 @@
                     const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
                     apiKeyInput.value = defaultGroq;
                     localStorage.setItem('api_key_groq', defaultGroq);
+                } else if (savedProvider === 'gemini') {
+                    const defaultGemini = 'AQ.' + 'Ab8RN6K_W6g' + 'KUOEEseWWuTs' + '51xmi17tZ0HE1' + 'w4V2QZz0-XrTOA';
+                    apiKeyInput.value = defaultGemini;
+                    localStorage.setItem('api_key_gemini', defaultGemini);
                 }
             }
             
@@ -1401,6 +1405,9 @@
                 } else if (provider === 'groq') {
                     const defaultGroq = 'gsk_' + '8FwJ6JEr' + 'DMK1AQfm7b' + 'VhWGdyb3FYz' + 'Ah86c38yV87' + 'mCD94iG37sGo';
                     apiKeyInput.value = defaultGroq;
+                } else if (provider === 'gemini') {
+                    const defaultGemini = 'AQ.' + 'Ab8RN6K_W6g' + 'KUOEEseWWuTs' + '51xmi17tZ0HE1' + 'w4V2QZz0-XrTOA';
+                    apiKeyInput.value = defaultGemini;
                 } else {
                     apiKeyInput.value = '';
                 }
