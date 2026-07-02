@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VN-CN Document AI | Số Hóa & Dịch Thuật Hóa Đơn Trung - Việt</title>
+    <title>Logistics Document AI Hub | Số Hóa & Dịch Thuật Chứng Từ Xuất Nhập Khẩu</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,7 +71,7 @@
         }
 
         header {
-            padding: 1.5rem 2rem;
+            padding: 1.25rem 2rem;
             border-bottom: 1px solid var(--border-color);
             background-color: rgba(19, 27, 46, 0.7);
             backdrop-filter: blur(12px);
@@ -92,8 +92,8 @@
         .logo-icon {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: #ffffff;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -103,7 +103,7 @@
 
         .logo-text h1 {
             font-family: var(--font-display);
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 700;
             letter-spacing: -0.025em;
             background: linear-gradient(to right, #ffffff, #94a3b8);
@@ -154,6 +154,13 @@
             opacity: 0.9;
             transform: translateY(-1px);
             box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .btn-sm {
@@ -246,7 +253,7 @@
         .upload-area {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem;
             text-align: center;
             cursor: pointer;
             transition: var(--transition-smooth);
@@ -335,6 +342,73 @@
             gap: 1.5rem;
         }
 
+        /* Document Selector Style */
+        .doc-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        .doc-type-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .doc-type-card:hover {
+            border-color: var(--accent-secondary);
+            transform: translateY(-2px);
+            background-color: rgba(6, 182, 212, 0.02);
+        }
+
+        .doc-type-card.active {
+            border-color: var(--accent-primary);
+            background-color: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .doc-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .doc-type-card.active .doc-type-icon {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .doc-type-card.active .doc-type-title {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .doc-type-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .doc-type-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Tabs menu */
         .tabs {
             display: flex;
             gap: 0.5rem;
@@ -389,10 +463,11 @@
             background-color: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.35rem;
+            position: relative;
         }
 
         .meta-label {
@@ -403,10 +478,19 @@
         }
 
         .meta-val {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 600;
             color: #ffffff;
             font-family: var(--font-display);
+            outline: none;
+            border-radius: 4px;
+            transition: var(--transition-smooth);
+        }
+
+        .meta-val:focus {
+            background-color: var(--bg-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary);
+            padding: 2px 4px;
         }
 
         .meta-val-sub {
@@ -497,7 +581,7 @@
             align-items: center;
             justify-content: center;
             gap: 1.5rem;
-            padding: 4rem 2rem;
+            padding: 5rem 2rem;
             text-align: center;
         }
 
@@ -515,7 +599,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            max-width: 300px;
+            max-width: 320px;
             width: 100%;
             text-align: left;
         }
@@ -610,18 +694,36 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            flex: 1;
         }
 
         .history-title {
             font-size: 0.9rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
+        .history-title span.badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .badge-invoice { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-primary); }
+        .badge-packing_list { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-secondary); }
+        .badge-bill_of_lading { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .badge-co { background-color: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
 
         .history-meta {
             font-size: 0.75rem;
             color: var(--text-secondary);
             display: flex;
             gap: 0.75rem;
+            margin-top: 0.25rem;
         }
 
         .history-actions {
@@ -701,6 +803,9 @@
             .sidebar {
                 grid-column: 1;
             }
+            .doc-selector-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -714,16 +819,16 @@
                 <i data-lucide="container"></i>
             </div>
             <div class="logo-text">
-                <h1>VN-CN DOCUMENT AI</h1>
-                <p>Số Hóa & Dịch Thuật Hóa Đơn Logistics Việt - Trung</p>
+                <h1>LOGISTICS DOCUMENT AI HUB</h1>
+                <p>Số Hóa, Biên Dịch & Trích Xuất Dữ Liệu Tự Động</p>
             </div>
         </div>
         <div class="header-actions">
             <button class="btn btn-sm" id="btn-open-api-modal">
-                <i data-lucide="key"></i> Cài đặt API
+                <i data-lucide="key"></i> Cấu hình API
             </button>
             <button class="btn btn-primary" id="btn-process-doc" disabled>
-                <i data-lucide="cpu"></i> Phân tích ngay
+                <i data-lucide="cpu"></i> Bắt đầu phân tích
             </button>
         </div>
     </header>
@@ -743,7 +848,7 @@
                 </div>
                 <div class="input-group">
                     <label class="input-label" for="exchange-rate-input">
-                        Tỷ giá tệ (CNY -> VND):
+                        Tỷ giá quy đổi (Ví dụ CNY -> VND):
                         <span id="rate-display" style="font-weight: bold; color: var(--accent-primary);">3,500đ</span>
                     </label>
                     <input type="number" id="exchange-rate-input" class="input-field" value="3500">
@@ -757,13 +862,13 @@
             <!-- Upload Card -->
             <div class="card">
                 <div class="card-header">
-                    <i data-lucide="image"></i>
-                    <h2>Chứng từ tiếng Trung</h2>
+                    <i data-lucide="file-image"></i>
+                    <h2>Tải chứng từ lên</h2>
                 </div>
                 <div class="upload-area" id="drop-zone">
                     <i data-lucide="upload-cloud"></i>
-                    <p class="upload-text">Kéo thả ảnh hóa đơn vào đây hoặc <span>chọn file</span></p>
-                    <p class="upload-hint">Hỗ trợ PNG, JPG, JPEG, WEBP</p>
+                    <p class="upload-text">Kéo thả ảnh chứng từ vào đây hoặc <span>chọn file</span></p>
+                    <p class="upload-hint">PNG, JPG, JPEG, WEBP</p>
                     <input type="file" id="file-input" accept="image/*" style="display: none;">
                 </div>
                 <div class="preview-container" id="preview-box">
@@ -777,9 +882,34 @@
 
         <!-- Main Panel: Tabs and Results -->
         <div class="workspace-panel">
+            <!-- 1. Document Selector Grid -->
+            <div class="doc-selector-grid">
+                <div class="doc-type-card active" data-type="invoice">
+                    <div class="doc-type-icon"><i data-lucide="file-text"></i></div>
+                    <span class="doc-type-title">Hóa đơn (Invoice)</span>
+                    <span class="doc-type-desc">Trích xuất chi tiết hàng, đơn giá, tổng tiền và dịch thuật.</span>
+                </div>
+                <div class="doc-type-card" data-type="packing_list">
+                    <div class="doc-type-icon"><i data-lucide="package"></i></div>
+                    <span class="doc-type-title">Phiếu đóng gói (P/L)</span>
+                    <span class="doc-type-desc">Thống kê số kiện, trọng lượng tịnh, trọng lượng thô, thể tích.</span>
+                </div>
+                <div class="doc-type-card" data-type="bill_of_lading">
+                    <div class="doc-type-icon"><i data-lucide="ship"></i></div>
+                    <span class="doc-type-title">Vận đơn (B/L / AWB)</span>
+                    <span class="doc-type-desc">Thông tin người gửi/nhận, tên tàu/chuyến bay, số container/chì.</span>
+                </div>
+                <div class="doc-type-card" data-type="co">
+                    <div class="doc-type-icon"><i data-lucide="award"></i></div>
+                    <span class="doc-type-title">Xuất xứ (C/O)</span>
+                    <span class="doc-type-desc">Xác minh Form C/O, tiêu chí xuất xứ, mã HS và nhà xuất khẩu.</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
             <div class="tabs">
                 <button class="tab-btn active" data-tab="tab-result">
-                    <i data-lucide="file-text"></i> Kết quả phân tích
+                    <i data-lucide="database"></i> Kết quả phân tích
                 </button>
                 <button class="tab-btn" data-tab="tab-json">
                     <i data-lucide="code"></i> Chuỗi JSON gốc
@@ -793,69 +923,48 @@
             <div id="tab-result" class="tab-content active">
                 <!-- Empty State -->
                 <div class="empty-state" id="empty-view">
-                    <i data-lucide="scan"></i>
+                    <i data-lucide="scan-face"></i>
                     <h3>Chưa có dữ liệu phân tích</h3>
-                    <p>Hãy thiết lập API Key, tải lên một ảnh hóa đơn chứng từ ở sidebar bên trái và bấm nút "Phân tích ngay".</p>
+                    <p>Hãy chọn loại chứng từ tương ứng phía trên, tải ảnh lên ở bên trái và bấm nút "Bắt đầu phân tích".</p>
                 </div>
 
                 <!-- Loading State -->
                 <div class="loading-overlay" id="loading-view">
                     <div class="spinner"></div>
-                    <h3 style="font-family: var(--font-display);">AI đang phân tích tài liệu...</h3>
+                    <h3 style="font-family: var(--font-display);" id="loading-title">AI đang đọc dữ liệu...</h3>
                     <div class="loading-timeline">
                         <div class="timeline-step" id="step-1">
                             <i data-lucide="check-circle-2"></i> Đọc và nén file hình ảnh
                         </div>
                         <div class="timeline-step" id="step-2">
-                            <i data-lucide="loader"></i> Gửi dữ liệu tới OpenAI Server
+                            <i data-lucide="loader"></i> Kết nối máy chủ AI & Gửi dữ liệu
                         </div>
                         <div class="timeline-step" id="step-3">
-                            <i data-lucide="circle"></i> Đang biên dịch tiếng Trung & trích xuất JSON
+                            <i data-lucide="circle"></i> Đang biên dịch & trích xuất JSON cấu trúc
                         </div>
                         <div class="timeline-step" id="step-4">
-                            <i data-lucide="circle"></i> Hoàn thiện bảng dữ liệu
+                            <i data-lucide="circle"></i> Đang hoàn thiện bảng hiển thị
                         </div>
                     </div>
                 </div>
 
-                <!-- Results View -->
+                <!-- Results View Container -->
                 <div id="result-view" style="display: none; flex-direction: column; gap: 1.5rem;">
-                    <!-- Meta Grid (Summary) -->
-                    <div class="meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">Ngày hóa đơn</span>
-                            <span class="meta-val" id="val-date">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Mã hóa đơn / Số chứng từ</span>
-                            <span class="meta-val" id="val-invoice-num">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Tổng tiền tệ (CNY)</span>
-                            <span class="meta-val" style="color: #fbbf24;" id="val-total-cny">0.00</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Tổng quy đổi (VND)</span>
-                            <span class="meta-val" style="color: var(--accent-primary);" id="val-total-vnd">0đ</span>
-                            <span class="meta-val-sub" id="val-vnd-sub">Tỷ giá: 3,500</span>
-                        </div>
+                    
+                    <!-- Dynamic Metadata Fields Container -->
+                    <div class="meta-grid" id="dynamic-meta-grid">
+                        <!-- Filled by JS -->
                     </div>
 
-                    <div class="meta-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="meta-item">
-                            <span class="meta-label">Nhà cung cấp (Bên bán - Trung Quốc)</span>
-                            <span class="meta-val" style="font-size: 0.95rem; font-family: var(--font-main);" id="val-vendor">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Người nhập khẩu (Bên mua - Việt Nam)</span>
-                            <span class="meta-val" style="font-size: 0.95rem; font-family: var(--font-main);" id="val-buyer">-</span>
-                        </div>
+                    <!-- Additional Multi-column Info (e.g. Shipper / Consignee) -->
+                    <div class="meta-grid" style="grid-template-columns: 1fr 1fr;" id="dynamic-addresses-grid">
+                        <!-- Filled by JS -->
                     </div>
 
-                    <!-- Items Table -->
-                    <div class="table-container">
+                    <!-- Dynamic Table Container -->
+                    <div class="table-container" id="dynamic-table-container">
                         <div class="table-header-row">
-                            <span class="table-header-title">Chi tiết hàng hóa nhập khẩu (Nhấp vào ô để chỉnh sửa nhanh)</span>
+                            <span class="table-header-title" id="table-title">Chi tiết mặt hàng (Nhấp đúp ô để chỉnh sửa)</span>
                             <div class="table-actions">
                                 <button class="btn btn-sm" id="btn-copy-table">
                                     <i data-lucide="copy"></i> Sao chép bảng
@@ -866,27 +975,20 @@
                             </div>
                         </div>
                         <div class="table-wrapper">
-                            <table id="items-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 5%">STT</th>
-                                        <th style="width: 30%">Tên tiếng Trung gốc</th>
-                                        <th style="width: 30%">Tên tiếng Việt dịch nghĩa</th>
-                                        <th style="width: 15%">Số lượng / Quy cách</th>
-                                        <th style="width: 10%">Đơn giá (CNY)</th>
-                                        <th style="width: 10%">Thành tiền (CNY)</th>
-                                    </tr>
+                            <table id="dynamic-table">
+                                <thead id="table-head">
+                                    <!-- Filled by JS -->
                                 </thead>
                                 <tbody id="table-body">
-                                    <!-- Dynamic rows -->
+                                    <!-- Filled by JS -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- Notes -->
-                    <div class="notes-box">
-                        <strong><i data-lucide="info" style="display:inline-block; vertical-align: middle; width:16px; height:16px; margin-right:4px;"></i> Ghi chú chứng từ:</strong>
+                    <div class="notes-box" id="notes-container">
+                        <strong><i data-lucide="info" style="display:inline-block; vertical-align: middle; width:16px; height:16px; margin-right:4px;"></i> Ghi chú & Chi tiết phụ:</strong>
                         <p id="val-notes" style="margin-top: 4px;"></p>
                     </div>
                 </div>
@@ -925,7 +1027,103 @@
     </div>
 
     <script>
-        // DOM Elements
+        // System Prompt Templates for different Logistics Document Types
+        const promptTemplates = {
+            invoice: `Bạn là trợ lý AI chuyên nghiệp xử lý Hóa đơn nhập khẩu (Commercial Invoice) trong ngành logistics. Hãy trích xuất dữ liệu ảnh chứng từ và dịch nghĩa các mặt hàng từ ngôn ngữ gốc sang tiếng Việt chuyên ngành thương mại/nhập khẩu chuẩn xác nhất.
+            Trả về cấu trúc JSON duy nhất:
+            {
+              "date": "Ngày hóa đơn (DD/MM/YYYY hoặc tương tự)",
+              "invoice_number": "Số hóa đơn (Invoice No / Reference No)",
+              "vendor": "Tên bên bán/nhà cung cấp (gốc & dịch Việt)",
+              "buyer": "Tên bên mua/nhập khẩu (Việt Nam)",
+              "currency": "Đồng tiền thanh toán (Ví dụ: USD, CNY, EUR...)",
+              "total_amount": số tiền tổng hóa đơn (kiểu số, ví dụ: 25800.50),
+              "items": [
+                {
+                  "original_name": "Tên tiếng gốc (Trung/Anh)",
+                  "translated_name": "Tên dịch tiếng Việt chuẩn chuyên ngành thương mại",
+                  "quantity": "Số lượng kèm đơn vị (Ví dụ: 120 bộ, 500 cái)",
+                  "price": đơn giá (kiểu số, 0 nếu không tìm thấy),
+                  "total": thành tiền (kiểu số, 0 nếu không tìm thấy)"
+                }
+              ],
+              "notes": "Các thông tin bổ sung như Incoterms, ngân hàng thanh toán, ký hiệu vận đơn..."
+            }`,
+
+            packing_list: `Bạn là trợ lý AI chuyên nghiệp xử lý Phiếu đóng gói (Packing List) trong ngành logistics. Hãy trích xuất thông tin đóng gói, trọng lượng, kích thước từ hình ảnh chứng từ đính kèm.
+            Trả về cấu trúc JSON duy nhất:
+            {
+              "invoice_link": "Số hóa đơn liên kết (Invoice No / Reference)",
+              "date": "Ngày lập phiếu (DD/MM/YYYY hoặc tương tự)",
+              "total_packages": "Tổng số kiện/thùng (Ví dụ: 50 Cartons, 4 Pallets)",
+              "total_gross_weight": "Tổng trọng lượng cả bì (ví dụ: 1500 kg hoặc 1.5 tấn)",
+              "total_net_weight": "Tổng trọng lượng tịnh (ví dụ: 1420 kg)",
+              "total_volume": "Tổng thể tích CBM (ví dụ: 4.5 CBM)",
+              "items": [
+                {
+                  "package_no": "Ký hiệu/Số kiện (Ví dụ: CTN 1-10)",
+                  "description": "Mô tả hàng đóng gói (tiếng Việt dịch nghĩa)",
+                  "quantity": "Số lượng sản phẩm bên trong",
+                  "net_weight": "Trọng lượng tịnh (kg)",
+                  "gross_weight": "Trọng lượng cả bì (kg)",
+                  "dimensions": "Kích thước/Thể tích kiện (Ví dụ: 40x50x60 cm / 0.12 CBM)"
+                }
+              ],
+              "notes": "Các lưu ý đóng gói khác, ký mã hiệu hàng hóa (Shipping Marks)..."
+            }`,
+
+            bill_of_lading: `Bạn là trợ lý AI chuyên nghiệp xử lý Vận đơn (Bill of Lading / Air Waybill) trong ngành logistics. Hãy trích xuất thông tin vận chuyển quốc tế từ hình ảnh chứng từ đính kèm.
+            Trả về cấu trúc JSON duy nhất:
+            {
+              "bl_number": "Số vận đơn (B/L No hoặc AWB No)",
+              "carrier": "Hãng vận chuyển/Hãng tàu/Hãng bay",
+              "vessel_flight": "Tên tàu & Số chuyến / Số hiệu chuyến bay (Vessel/Voyage hoặc Flight No)",
+              "shipper": "Người gửi hàng (Shipper - Tên & Địa chỉ)",
+              "consignee": "Người nhận hàng (Consignee - Tên & Địa chỉ)",
+              "notify_party": "Bên thông báo (Notify Party)",
+              "port_loading": "Cảng/Sân bay xếp hàng (POL - Port of Loading)",
+              "port_discharge": "Cảng/Sân bay dỡ hàng (POD - Port of Discharge)",
+              "items": [
+                {
+                  "container_seal": "Số Container và Số Chì (Ví dụ: COSU1234567 / SEAL 987654)",
+                  "description": "Mô tả hàng hóa ghi trên vận đơn (Dịch tiếng Việt nghĩa chính)",
+                  "quantity": "Số kiện & loại kiện (Ví dụ: 1x20GP hoặc 20 Pallets)",
+                  "weight": "Trọng lượng ghi trên vận đơn (Gross Weight)",
+                  "volume": "Thể tích (CBM/khối)"
+                }
+              ],
+              "notes": "Phương thức thanh toán cước (Prepaid/Collect), nơi phát hành vận đơn..."
+            }`,
+
+            co: `Bạn là trợ lý AI chuyên nghiệp xử lý Giấy chứng nhận xuất xứ (Certificate of Origin - C/O). Hãy trích xuất các thông tin xác minh nguồn gốc xuất xứ hàng hóa từ hình ảnh đính kèm.
+            Trả về cấu trúc JSON duy nhất:
+            {
+              "co_number": "Số tham chiếu C/O (Reference No)",
+              "co_form": "Loại Form C/O (Ví dụ: Form E, Form D, Form AK, Form KV...)",
+              "exporter": "Nhà xuất khẩu (Exporter - Tên & Quốc gia)",
+              "importer": "Nhà nhập khẩu (Importer - Tên & Địa chỉ)",
+              "country_origin": "Nước xuất xứ hàng hóa",
+              "country_destination": "Nước nhập khẩu / Đích đến",
+              "items": [
+                {
+                  "item_no": "Số thứ tự dòng (Item number)",
+                  "description": "Mô tả hàng hóa dịch nghĩa tiếng Việt",
+                  "hs_code": "Mã HS Code ghi trên C/O",
+                  "origin_criterion": "Tiêu chí xuất xứ (Ví dụ: WO, PE, RVC 40%, PSR...)",
+                  "invoice_info": "Số và Ngày hóa đơn đính kèm (Ví dụ: INV1234 - 15/05/2026)"
+                }
+              ],
+              "notes": "Cơ quan cấp C/O, chữ ký, ngày cấp..."
+            }`
+        };
+
+        // UI State
+        let activeDocType = 'invoice';
+        let selectedFileBase64 = null;
+        let currentExtractedData = null;
+        let scanHistory = [];
+
+        // DOM elements binding
         const apiKeyInput = document.getElementById('api-key-input');
         const exchangeRateInput = document.getElementById('exchange-rate-input');
         const customEndpointInput = document.getElementById('custom-endpoint');
@@ -941,45 +1139,36 @@
         const emptyView = document.getElementById('empty-view');
         const loadingView = document.getElementById('loading-view');
         const resultView = document.getElementById('result-view');
-        
-        // Timeline Steps
+        const loadingTitle = document.getElementById('loading-title');
+
+        // Timeline steps
         const step1 = document.getElementById('step-1');
         const step2 = document.getElementById('step-2');
         const step3 = document.getElementById('step-3');
         const step4 = document.getElementById('step-4');
 
-        // Result value bindings
-        const valDate = document.getElementById('val-date');
-        const valInvoiceNum = document.getElementById('val-invoice-num');
-        const valTotalCny = document.getElementById('val-total-cny');
-        const valTotalVnd = document.getElementById('val-total-vnd');
-        const valVndSub = document.getElementById('val-vnd-sub');
-        const valVendor = document.getElementById('val-vendor');
-        const valBuyer = document.getElementById('val-buyer');
-        const valNotes = document.getElementById('val-notes');
+        // Result displays
+        const dynamicMetaGrid = document.getElementById('dynamic-meta-grid');
+        const dynamicAddressesGrid = document.getElementById('dynamic-addresses-grid');
+        const tableHead = document.getElementById('table-head');
         const tableBody = document.getElementById('table-body');
+        const tableTitle = document.getElementById('table-title');
+        const valNotes = document.getElementById('val-notes');
         const jsonBox = document.getElementById('json-box');
         const historyBox = document.getElementById('history-box');
 
-        // Buttons Action
+        // Action Buttons
         const btnCopyTable = document.getElementById('btn-copy-table');
         const btnExportCsv = document.getElementById('btn-export-csv');
         const btnCopyJson = document.getElementById('btn-copy-json');
         const btnClearHistory = document.getElementById('btn-clear-history');
         const btnOpenApiModal = document.getElementById('btn-open-api-modal');
 
-        // Application State
-        let selectedFileBase64 = null;
-        let currentExtractedData = null;
-        let scanHistory = [];
-
-        // Initialization
+        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
-            // Load saved settings
+            // Load credentials
             const savedApiKey = localStorage.getItem('openai_api_key');
-            if (savedApiKey) {
-                apiKeyInput.value = savedApiKey;
-            }
+            if (savedApiKey) apiKeyInput.value = savedApiKey;
             
             const savedRate = localStorage.getItem('exchange_rate');
             if (savedRate) {
@@ -988,32 +1177,34 @@
             }
 
             const savedEndpoint = localStorage.getItem('api_endpoint');
-            if (savedEndpoint) {
-                customEndpointInput.value = savedEndpoint;
-            }
+            if (savedEndpoint) customEndpointInput.value = savedEndpoint;
 
-            // Load scan history
             const savedHistory = localStorage.getItem('scan_history');
             if (savedHistory) {
                 scanHistory = JSON.parse(savedHistory);
                 renderHistoryList();
             }
 
-            // Init lucide icons
             lucide.createIcons();
-            
-            // Set up input action events
             setupEventListeners();
         });
 
-        // Helper: Update rate display
         function updateRateDisplay(val) {
             rateDisplay.textContent = new Intl.NumberFormat('vi-VN').format(val) + 'đ';
         }
 
         // Setup All Event Listeners
         function setupEventListeners() {
-            // Save Settings on Input Change
+            // Document selector cards
+            document.querySelectorAll('.doc-type-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    activeDocType = card.getAttribute('data-type');
+                });
+            });
+
+            // Settings input handlers
             apiKeyInput.addEventListener('input', (e) => {
                 localStorage.setItem('openai_api_key', e.target.value.trim());
             });
@@ -1022,8 +1213,14 @@
                 const val = e.target.value;
                 localStorage.setItem('exchange_rate', val);
                 updateRateDisplay(val);
-                if (currentExtractedData) {
-                    recalculateVndValues();
+                if (currentExtractedData && activeDocType === 'invoice') {
+                    // Update equivalent VND totals
+                    const totalVndEl = document.getElementById('meta-val-total-vnd');
+                    if (totalVndEl) {
+                        const totalCny = parseFloat(currentExtractedData.total_amount) || 0;
+                        const rate = parseFloat(val) || 3500;
+                        totalVndEl.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalCny * rate)) + 'đ';
+                    }
                 }
             });
 
@@ -1031,13 +1228,12 @@
                 localStorage.setItem('api_endpoint', e.target.value.trim());
             });
 
-            // Open API Settings Highlight
             btnOpenApiModal.addEventListener('click', () => {
                 apiKeyInput.focus();
-                showToast("Vui lòng nhập API Key tại phần cấu hình!");
+                showToast("Nhập API Key ở thanh cấu hình bên trái!");
             });
 
-            // Drag and drop events
+            // Drag/drop image file
             dropZone.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', handleFileSelect);
 
@@ -1045,11 +1241,7 @@
                 e.preventDefault();
                 dropZone.classList.add('dragover');
             });
-
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('dragover');
-            });
-
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('dragover');
@@ -1059,17 +1251,15 @@
                 }
             });
 
-            // Clear preview
             btnClearFile.addEventListener('click', () => {
                 selectedFileBase64 = null;
                 fileInput.value = '';
-                previewBox.style.style = 'none';
                 previewBox.style.display = 'none';
                 dropZone.style.display = 'flex';
                 btnProcessDoc.disabled = true;
             });
 
-            // Tab Switching
+            // Switch workspace tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1081,22 +1271,19 @@
                 });
             });
 
-            // Process documents
+            // Buttons Action
             btnProcessDoc.addEventListener('click', processDocument);
-
-            // Export and Copy Actions
             btnCopyTable.addEventListener('click', copyTableToClipboard);
             btnExportCsv.addEventListener('click', exportTableToCsv);
             btnCopyJson.addEventListener('click', copyJsonToClipboard);
             btnClearHistory.addEventListener('click', clearAllHistory);
         }
 
-        // File compression & Base64 Converter
+        // File compression & preview
         async function handleFileSelect() {
             const file = fileInput.files[0];
             if (!file) return;
 
-            // Show preview
             const reader = new FileReader();
             reader.onload = (e) => {
                 previewImage.src = e.target.result;
@@ -1106,16 +1293,14 @@
             };
             reader.readAsDataURL(file);
 
-            // Compress & prepare base64 for API
             try {
                 selectedFileBase64 = await compressImage(file);
             } catch (err) {
-                console.error("Lỗi nén ảnh: ", err);
+                console.error("Lỗi nén hình ảnh: ", err);
                 showToast("Lỗi nén tệp tin hình ảnh!");
             }
         }
 
-        // Client-side Image compression using HTML Canvas
         function compressImage(file, maxWidth = 1200, maxHeight = 1200) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1144,9 +1329,7 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Compresses to JPEG with 80% quality
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                         resolve(dataUrl.split(',')[1]);
                     };
                     img.onerror = (err) => reject(err);
@@ -1155,33 +1338,34 @@
             });
         }
 
-        // Main action: Call OpenAI API
+        // Calling OpenAI API
         async function processDocument() {
             const apiKey = apiKeyInput.value.trim();
             if (!apiKey) {
-                showToast("Bạn cần nhập OpenAI API Key để sử dụng!");
+                showToast("Vui lòng nhập OpenAI API Key!");
                 apiKeyInput.focus();
                 return;
             }
 
             if (!selectedFileBase64) {
-                showToast("Vui lòng chọn hoặc kéo thả ảnh chứng từ!");
+                showToast("Hãy tải ảnh chứng từ lên trước!");
                 return;
             }
 
-            // Show loading view
             emptyView.style.display = 'none';
             resultView.style.display = 'none';
             loadingView.style.display = 'flex';
             
-            // Set timeline steps
+            // Set dynamic loading title based on doc type
+            const docName = document.querySelector(`.doc-type-card[data-type="${activeDocType}"] .doc-type-title`).textContent;
+            loadingTitle.textContent = `AI đang đọc và xử lý: ${docName}...`;
+
             setStepStatus(step1, 'completed');
             setStepStatus(step2, 'active');
             setStepStatus(step3, 'pending');
             setStepStatus(step4, 'pending');
 
             const apiEndpoint = customEndpointInput.value.trim() || 'https://api.openai.com';
-            const rate = parseFloat(exchangeRateInput.value) || 3500;
 
             try {
                 setStepStatus(step2, 'completed');
@@ -1200,33 +1384,14 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: `Bạn là trợ lý AI chuyên nghiệp phân tích hóa đơn nhập khẩu Trung Quốc. Hãy quét tài liệu ảnh được đính kèm và trích xuất dữ liệu thành cấu trúc JSON.
-                                Bạn CẦN dịch tên mặt hàng tiếng Trung sang thuật ngữ thương mại và nhập khẩu tiếng Việt chuẩn xác nhất. 
-                                Trả về kết quả CHỈ dạng JSON theo cấu trúc sau:
-                                {
-                                  "date": "Ngày hóa đơn dạng DD/MM/YYYY hoặc tương tự (nếu có)",
-                                  "invoice_number": "Mã hóa đơn/Packing List/Bill No",
-                                  "vendor": "Tên nhà bán hàng (chữ gốc Trung Quốc và dịch tiếng Việt ngắn gọn trong ngoặc)",
-                                  "buyer": "Tên bên mua (Việt Nam)",
-                                  "total_cny": số tiền (tổng tiền của hóa đơn bằng CNY/tệ - định dạng số, ví dụ 15000.5),
-                                  "items": [
-                                    {
-                                      "original_name": "Tên tiếng Trung gốc",
-                                      "translated_name": "Tên sản phẩm tiếng Việt đã dịch chuẩn chuyên ngành",
-                                      "quantity": "Số lượng + đơn vị đo lường (ví dụ: 100 cái, 50kg, 20 thùng)",
-                                      "price_cny": đơn giá theo CNY (định dạng số, 0 nếu không có)",
-                                      "total_cny": thành tiền theo CNY (định dạng số, 0 nếu không có)"
-                                    }
-                                  ],
-                                  "notes": "Các thông tin bổ sung quan trọng nếu có: Điều khoản vận chuyển (Incoterms), cảng xuất, điều khoản thanh toán, ký hiệu vận đơn..."
-                                }`
+                                content: promptTemplates[activeDocType]
                             },
                             {
                                 role: 'user',
                                 content: [
                                     {
                                         type: 'text',
-                                        text: 'Extract and translate this Chinese logistics document.'
+                                        text: `Hãy trích xuất hình ảnh chứng từ logistics sau theo đúng định dạng được yêu cầu.`
                                     },
                                     {
                                         type: 'image_url',
@@ -1251,32 +1416,29 @@
                 const data = await response.json();
                 const jsonContent = JSON.parse(data.choices[0].message.content);
                 
-                // Set application state
                 currentExtractedData = jsonContent;
                 
-                // Render view
-                renderResults();
-                
-                // Add to history
-                saveToHistory(jsonContent);
+                // Render UI according to document type
+                renderDynamicResults();
+
+                // Save to scan history
+                saveToHistory(jsonContent, activeDocType);
 
                 setStepStatus(step4, 'completed');
                 
-                // Swap view
                 setTimeout(() => {
                     loadingView.style.display = 'none';
                     resultView.style.display = 'flex';
                 }, 500);
 
             } catch (err) {
-                console.error("Lỗi gọi OpenAI API: ", err);
+                console.error("Lỗi gọi API: ", err);
                 loadingView.style.display = 'none';
                 emptyView.style.display = 'flex';
-                showToast(`Thất bại: ${err.message}`);
+                showToast(`Lỗi: ${err.message}`);
             }
         }
 
-        // Helper: Set Step Visual status
         function setStepStatus(stepEl, status) {
             if (status === 'completed') {
                 stepEl.className = 'timeline-step completed';
@@ -1291,117 +1453,377 @@
             lucide.createIcons();
         }
 
-        // Render extracted data into tables & inputs
-        function renderResults() {
+        // Render Dynamic UI Results based on doc type
+        function renderDynamicResults() {
             if (!currentExtractedData) return;
 
-            // Raw JSON Viewer
+            // Set raw JSON view
             jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
 
-            // Summary values
-            valDate.textContent = currentExtractedData.date || 'N/A';
-            valInvoiceNum.textContent = currentExtractedData.invoice_number || 'N/A';
-            valTotalCny.textContent = formatCurrency(currentExtractedData.total_cny) + ' ¥';
-            valVendor.textContent = currentExtractedData.vendor || 'N/A';
-            valBuyer.textContent = currentExtractedData.buyer || 'N/A';
-            valNotes.textContent = currentExtractedData.notes || 'Không có thông tin ghi chú.';
-
-            // Calculate VND
-            recalculateVndValues();
-
-            // Render items table
+            // Clean grids
+            dynamicMetaGrid.innerHTML = '';
+            dynamicAddressesGrid.innerHTML = '';
+            tableHead.innerHTML = '';
             tableBody.innerHTML = '';
+            
+            // Set notes
+            valNotes.textContent = currentExtractedData.notes || 'Không có thông tin ghi chú phụ.';
+
+            if (activeDocType === 'invoice') {
+                renderInvoiceLayout();
+            } else if (activeDocType === 'packing_list') {
+                renderPackingListLayout();
+            } else if (activeDocType === 'bill_of_lading') {
+                renderBillOfLadingLayout();
+            } else if (activeDocType === 'co') {
+                renderCertificateOfOriginLayout();
+            }
+
+            // Attach inline edit listeners to cells and metadata values
+            document.querySelectorAll('.editable-cell').forEach(cell => {
+                cell.addEventListener('blur', handleCellEdit);
+            });
+            document.querySelectorAll('.meta-val').forEach(metaEl => {
+                metaEl.addEventListener('blur', handleMetaEdit);
+            });
+        }
+
+        // 1. INVOICE LAYOUT
+        function renderInvoiceLayout() {
+            tableTitle.textContent = "Chi tiết mặt hàng (Hóa đơn)";
+            
+            const rate = parseFloat(exchangeRateInput.value) || 3500;
+            const currency = currentExtractedData.currency || 'CNY';
+            const total = parseFloat(currentExtractedData.total_amount) || 0;
+            const totalVnd = total * rate;
+
+            // Meta cards
+            dynamicMetaGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Ngày hóa đơn</span>
+                    <span class="meta-val" contenteditable="true" data-key="date">${escapeHtml(currentExtractedData.date || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Số hóa đơn</span>
+                    <span class="meta-val" contenteditable="true" data-key="invoice_number">${escapeHtml(currentExtractedData.invoice_number || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Tổng cộng (${currency})</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_amount" style="color: #fbbf24;">${formatCurrency(total)}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Quy đổi (VND)</span>
+                    <span class="meta-val" style="color: var(--accent-primary);" id="meta-val-total-vnd">${new Intl.NumberFormat('vi-VN').format(Math.round(totalVnd))}đ</span>
+                    <span class="meta-val-sub">Tỷ giá: ${new Intl.NumberFormat('vi-VN').format(rate)}</span>
+                </div>
+            `;
+
+            dynamicAddressesGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Người bán (Vendor / Exporter)</span>
+                    <span class="meta-val" contenteditable="true" data-key="vendor" style="font-size: 0.95rem; font-family: var(--font-main); font-weight: 500;">${escapeHtml(currentExtractedData.vendor || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Người mua (Buyer / Importer)</span>
+                    <span class="meta-val" contenteditable="true" data-key="buyer" style="font-size: 0.95rem; font-family: var(--font-main); font-weight: 500;">${escapeHtml(currentExtractedData.buyer || '')}</span>
+                </div>
+            `;
+
+            // Table Head
+            tableHead.innerHTML = `
+                <tr>
+                    <th style="width: 5%">STT</th>
+                    <th style="width: 30%">Tên tiếng gốc (Trung/Anh)</th>
+                    <th style="width: 30%">Tên dịch tiếng Việt</th>
+                    <th style="width: 15%">Số lượng</th>
+                    <th style="width: 10%">Đơn giá (${currency})</th>
+                    <th style="width: 10%">Thành tiền (${currency})</th>
+                </tr>
+            `;
+
+            // Table Body
             if (currentExtractedData.items && currentExtractedData.items.length > 0) {
                 currentExtractedData.items.forEach((item, index) => {
                     const row = document.createElement('tr');
-                    
                     row.innerHTML = `
                         <td>${index + 1}</td>
                         <td contenteditable="true" class="editable-cell" data-field="original_name" data-index="${index}">${escapeHtml(item.original_name)}</td>
                         <td contenteditable="true" class="editable-cell" data-field="translated_name" data-index="${index}">${escapeHtml(item.translated_name)}</td>
                         <td contenteditable="true" class="editable-cell" data-field="quantity" data-index="${index}">${escapeHtml(item.quantity)}</td>
-                        <td contenteditable="true" class="editable-cell" data-field="price_cny" data-index="${index}">${item.price_cny ? parseFloat(item.price_cny).toFixed(2) : '0.00'}</td>
-                        <td contenteditable="true" class="editable-cell" data-field="total_cny" data-index="${index}">${item.total_cny ? parseFloat(item.total_cny).toFixed(2) : '0.00'}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="price" data-index="${index}">${item.price ? parseFloat(item.price).toFixed(2) : '0.00'}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="total" data-index="${index}">${item.total ? parseFloat(item.total).toFixed(2) : '0.00'}</td>
                     `;
-                    
                     tableBody.appendChild(row);
                 });
-
-                // Attach inline edits listener
-                document.querySelectorAll('.editable-cell').forEach(cell => {
-                    cell.addEventListener('blur', handleCellEdit);
-                });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Không tìm thấy thông tin mặt hàng lẻ nào.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Không tìm thấy sản phẩm nào.</td></tr>`;
             }
         }
 
-        // Live Recalculate VND total
-        function recalculateVndValues() {
-            if (!currentExtractedData) return;
-            const rate = parseFloat(exchangeRateInput.value) || 3500;
-            const totalCny = parseFloat(currentExtractedData.total_cny) || 0;
-            const totalVnd = totalCny * rate;
+        // 2. PACKING LIST LAYOUT
+        function renderPackingListLayout() {
+            tableTitle.textContent = "Danh sách chi tiết đóng gói (Packing List)";
 
-            valTotalVnd.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalVnd)) + 'đ';
-            valVndSub.textContent = `Tỷ giá: ${new Intl.NumberFormat('vi-VN').format(rate)}`;
+            dynamicMetaGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Hóa đơn tham chiếu</span>
+                    <span class="meta-val" contenteditable="true" data-key="invoice_link">${escapeHtml(currentExtractedData.invoice_link || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Ngày lập phiếu</span>
+                    <span class="meta-val" contenteditable="true" data-key="date">${escapeHtml(currentExtractedData.date || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Tổng số kiện</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_packages" style="color: var(--accent-secondary);">${escapeHtml(currentExtractedData.total_packages || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Trọng lượng Gross (GW)</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_gross_weight" style="color: #fbbf24;">${escapeHtml(currentExtractedData.total_gross_weight || '')}</span>
+                </div>
+            `;
+
+            dynamicAddressesGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Tổng trọng lượng Net (NW)</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_net_weight" style="font-size: 1.15rem;">${escapeHtml(currentExtractedData.total_net_weight || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Tổng thể tích (Volume CBM)</span>
+                    <span class="meta-val" contenteditable="true" data-key="total_volume" style="font-size: 1.15rem; color: var(--accent-primary);">${escapeHtml(currentExtractedData.total_volume || '')}</span>
+                </div>
+            `;
+
+            tableHead.innerHTML = `
+                <tr>
+                    <th style="width: 8%">Mã kiện</th>
+                    <th style="width: 35%">Mô tả hàng hóa (Dịch Việt)</th>
+                    <th style="width: 15%">Số lượng sp</th>
+                    <th style="width: 14%">TL Tịnh NW (kg)</th>
+                    <th style="width: 14%">TL Thô GW (kg)</th>
+                    <th style="width: 14%">Kích thước / Thể tích</th>
+                </tr>
+            `;
+
+            if (currentExtractedData.items && currentExtractedData.items.length > 0) {
+                currentExtractedData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td contenteditable="true" class="editable-cell" data-field="package_no" data-index="${index}">${escapeHtml(item.package_no)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="description" data-index="${index}">${escapeHtml(item.description)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="quantity" data-index="${index}">${escapeHtml(item.quantity)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="net_weight" data-index="${index}">${escapeHtml(item.net_weight)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="gross_weight" data-index="${index}">${escapeHtml(item.gross_weight)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="dimensions" data-index="${index}">${escapeHtml(item.dimensions)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Không tìm thấy thông tin đóng gói chi tiết.</td></tr>`;
+            }
         }
 
-        // Inline Table Edits Handler
+        // 3. BILL OF LADING LAYOUT
+        function renderBillOfLadingLayout() {
+            tableTitle.textContent = "Danh sách Container & Số chì (Seal)";
+
+            dynamicMetaGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Số vận đơn B/L No</span>
+                    <span class="meta-val" contenteditable="true" data-key="bl_number" style="color: #fbbf24;">${escapeHtml(currentExtractedData.bl_number || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Hãng vận chuyển</span>
+                    <span class="meta-val" contenteditable="true" data-key="carrier">${escapeHtml(currentExtractedData.carrier || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Tên tàu & Số chuyến</span>
+                    <span class="meta-val" contenteditable="true" data-key="vessel_flight">${escapeHtml(currentExtractedData.vessel_flight || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Cảng xếp hàng (POL)</span>
+                    <span class="meta-val" contenteditable="true" data-key="port_loading" style="color: var(--accent-secondary);">${escapeHtml(currentExtractedData.port_loading || '')}</span>
+                </div>
+            `;
+
+            dynamicAddressesGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Người gửi hàng (Shipper)</span>
+                    <span class="meta-val" contenteditable="true" data-key="shipper" style="font-size: 0.85rem; font-family: var(--font-main); font-weight: 500; white-space: pre-wrap;">${escapeHtml(currentExtractedData.shipper || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Người nhận hàng (Consignee)</span>
+                    <span class="meta-val" contenteditable="true" data-key="consignee" style="font-size: 0.85rem; font-family: var(--font-main); font-weight: 500; white-space: pre-wrap;">${escapeHtml(currentExtractedData.consignee || '')}</span>
+                </div>
+            `;
+
+            // Add POD to dynamicMetaGrid as well
+            const extraMeta = document.createElement('div');
+            extraMeta.className = 'meta-item';
+            extraMeta.innerHTML = `
+                <span class="meta-label">Cảng dỡ hàng (POD)</span>
+                <span class="meta-val" contenteditable="true" data-key="port_discharge" style="color: var(--accent-primary);">${escapeHtml(currentExtractedData.port_discharge || '')}</span>
+            `;
+            dynamicMetaGrid.appendChild(extraMeta);
+
+            tableHead.innerHTML = `
+                <tr>
+                    <th style="width: 25%">Số Cont / Số Seal</th>
+                    <th style="width: 45%">Mô tả hàng hóa dịch nghĩa</th>
+                    <th style="width: 15%">Số lượng kiện</th>
+                    <th style="width: 15%">Trọng lượng thô (GW)</th>
+                </tr>
+            `;
+
+            if (currentExtractedData.items && currentExtractedData.items.length > 0) {
+                currentExtractedData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td contenteditable="true" class="editable-cell" data-field="container_seal" data-index="${index}">${escapeHtml(item.container_seal)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="description" data-index="${index}">${escapeHtml(item.description)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="quantity" data-index="${index}">${escapeHtml(item.quantity)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="weight" data-index="${index}">${escapeHtml(item.weight)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Không tìm thấy thông tin Container.</td></tr>`;
+            }
+        }
+
+        // 4. CERTIFICATE OF ORIGIN LAYOUT
+        function renderCertificateOfOriginLayout() {
+            tableTitle.textContent = "Chi tiết danh mục xuất xứ";
+
+            dynamicMetaGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Số tham chiếu C/O</span>
+                    <span class="meta-val" contenteditable="true" data-key="co_number" style="color: #fbbf24;">${escapeHtml(currentExtractedData.co_number || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Loại Form C/O</span>
+                    <span class="meta-val" contenteditable="true" data-key="co_form" style="color: var(--accent-primary);">${escapeHtml(currentExtractedData.co_form || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Nước xuất xứ</span>
+                    <span class="meta-val" contenteditable="true" data-key="country_origin">${escapeHtml(currentExtractedData.country_origin || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Nước nhập khẩu</span>
+                    <span class="meta-val" contenteditable="true" data-key="country_destination">${escapeHtml(currentExtractedData.country_destination || '')}</span>
+                </div>
+            `;
+
+            dynamicAddressesGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Nhà xuất khẩu (Exporter)</span>
+                    <span class="meta-val" contenteditable="true" data-key="exporter" style="font-size: 0.85rem; font-family: var(--font-main); font-weight: 500; white-space: pre-wrap;">${escapeHtml(currentExtractedData.exporter || '')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Nhà nhập khẩu (Importer)</span>
+                    <span class="meta-val" contenteditable="true" data-key="importer" style="font-size: 0.85rem; font-family: var(--font-main); font-weight: 500; white-space: pre-wrap;">${escapeHtml(currentExtractedData.importer || '')}</span>
+                </div>
+            `;
+
+            tableHead.innerHTML = `
+                <tr>
+                    <th style="width: 8%">Mục</th>
+                    <th style="width: 45%">Mô tả hàng hóa tiếng Việt</th>
+                    <th style="width: 15%">Mã HS Code</th>
+                    <th style="width: 15%">Tiêu chí xuất xứ</th>
+                    <th style="width: 17%">Số/Ngày hóa đơn</th>
+                </tr>
+            `;
+
+            if (currentExtractedData.items && currentExtractedData.items.length > 0) {
+                currentExtractedData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td contenteditable="true" class="editable-cell" data-field="item_no" data-index="${index}">${escapeHtml(item.item_no || index + 1)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="description" data-index="${index}">${escapeHtml(item.description)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="hs_code" data-index="${index}">${escapeHtml(item.hs_code)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="origin_criterion" data-index="${index}">${escapeHtml(item.origin_criterion)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="invoice_info" data-index="${index}">${escapeHtml(item.invoice_info)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Không tìm thấy dòng hàng nào.</td></tr>`;
+            }
+        }
+
+        // Inline Table Edits
         function handleCellEdit(e) {
             const field = e.target.getAttribute('data-field');
             const idx = parseInt(e.target.getAttribute('data-index'));
             let value = e.target.textContent.trim();
 
-            if (field === 'price_cny' || field === 'total_cny') {
+            if (activeDocType === 'invoice' && (field === 'price' || field === 'total')) {
                 value = parseFloat(value) || 0;
                 e.target.textContent = value.toFixed(2);
             }
 
-            // Update state
+            // Sync with local state
             currentExtractedData.items[idx][field] = value;
 
-            // If we modified total CNY of items, let's auto calculate the total invoice sum in CNY if appropriate
-            if (field === 'total_cny') {
-                let newTotalCny = 0;
+            // Auto total sum for invoice
+            if (activeDocType === 'invoice' && field === 'total') {
+                let sum = 0;
                 currentExtractedData.items.forEach(it => {
-                    newTotalCny += parseFloat(it.total_cny) || 0;
+                    sum += parseFloat(it.total) || 0;
                 });
-                if (newTotalCny > 0) {
-                    currentExtractedData.total_cny = newTotalCny;
-                    valTotalCny.textContent = formatCurrency(newTotalCny) + ' ¥';
-                    recalculateVndValues();
+                if (sum > 0) {
+                    currentExtractedData.total_amount = sum;
+                    renderDynamicResults(); // Reload display
                 }
             }
 
-            // Sync updated json to code viewer
             jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
         }
 
-        // Save Scanned results to Local Storage history
-        function saveToHistory(data) {
+        // Inline Metadata Edits
+        function handleMetaEdit(e) {
+            const key = e.target.getAttribute('data-key');
+            let value = e.target.textContent.trim();
+
+            if (key === 'total_amount') {
+                value = parseFloat(value) || 0;
+                e.target.textContent = formatCurrency(value);
+            }
+
+            currentExtractedData[key] = value;
+
+            if (key === 'total_amount' && activeDocType === 'invoice') {
+                const rate = parseFloat(exchangeRateInput.value) || 3500;
+                document.getElementById('meta-val-total-vnd').textContent = new Intl.NumberFormat('vi-VN').format(Math.round(value * rate)) + 'đ';
+            }
+
+            jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
+        }
+
+        // Scan history cache management
+        function saveToHistory(data, docType) {
+            const docName = document.querySelector(`.doc-type-card[data-type="${docType}"] .doc-type-title`).textContent;
             const historyItem = {
                 id: Date.now(),
                 date_scanned: new Date().toLocaleString('vi-VN'),
-                file_name: fileInput.files[0]?.name || 'Hóa đơn không rõ nguồn',
+                file_name: fileInput.files[0]?.name || 'Tài liệu tải lên',
+                doc_type: docType,
+                doc_type_name: docName,
                 extracted: data
             };
 
-            scanHistory.unshift(historyItem); // Add to beginning
-            // Limit to 20 scans
-            if (scanHistory.length > 20) {
-                scanHistory.pop();
-            }
+            scanHistory.unshift(historyItem);
+            if (scanHistory.length > 20) scanHistory.pop();
 
             localStorage.setItem('scan_history', JSON.stringify(scanHistory));
             renderHistoryList();
         }
 
-        // Render History tab items
         function renderHistoryList() {
             historyBox.innerHTML = '';
             if (scanHistory.length === 0) {
-                historyBox.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem 1rem;">Không có lịch sử quét nào.</div>`;
+                historyBox.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem 1rem;">Chưa có lịch sử quét nào được lưu.</div>`;
                 return;
             }
 
@@ -1409,16 +1831,26 @@
                 const card = document.createElement('div');
                 card.className = 'history-item';
                 
-                const rate = parseFloat(exchangeRateInput.value) || 3500;
-                const totalVnd = (item.extracted.total_cny || 0) * rate;
+                let detailText = '';
+                if (item.doc_type === 'invoice') {
+                    detailText = `${formatCurrency(item.extracted.total_amount)} ${item.extracted.currency || 'CNY'}`;
+                } else if (item.doc_type === 'packing_list') {
+                    detailText = `${item.extracted.total_packages || 'N/A Kiện'} - ${item.extracted.total_gross_weight || 'N/A Weight'}`;
+                } else if (item.doc_type === 'bill_of_lading') {
+                    detailText = `BL: ${item.extracted.bl_number || 'N/A'}`;
+                } else if (item.doc_type === 'co') {
+                    detailText = `${item.extracted.co_form || 'C/O'}: ${item.extracted.co_number || 'N/A'}`;
+                }
 
                 card.innerHTML = `
                     <div class="history-info" onclick="loadHistoryItem(${item.id})">
-                        <span class="history-title">${escapeHtml(item.file_name)}</span>
+                        <div class="history-title">
+                            ${escapeHtml(item.file_name)}
+                            <span class="badge badge-${item.doc_type}">${item.doc_type_name}</span>
+                        </div>
                         <div class="history-meta">
                             <span>Quét lúc: ${item.date_scanned}</span>
-                            <span style="color: #fbbf24;">${formatCurrency(item.extracted.total_cny)} ¥</span>
-                            <span style="color: var(--accent-primary);">${new Intl.NumberFormat('vi-VN').format(Math.round(totalVnd))}đ</span>
+                            <span style="color: #fbbf24;">${detailText}</span>
                         </div>
                     </div>
                     <div class="history-actions">
@@ -1432,38 +1864,41 @@
             lucide.createIcons();
         }
 
-        // Load item from history back to viewer
         window.loadHistoryItem = function(id) {
             const item = scanHistory.find(it => it.id === id);
             if (item) {
                 currentExtractedData = item.extracted;
-                renderResults();
-                
-                // Switch to result tab
+                activeDocType = item.doc_type;
+
+                // Sync UI select card active states
+                document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('active'));
+                document.querySelector(`.doc-type-card[data-type="${activeDocType}"]`).classList.add('active');
+
+                renderDynamicResults();
+
+                // Swap back to results tab view
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
                 document.querySelector('[data-tab="tab-result"]').classList.add('active');
+                
                 resultView.style.display = 'flex';
                 emptyView.style.display = 'none';
                 loadingView.style.display = 'none';
                 document.getElementById('tab-result').classList.add('active');
-                
-                showToast("Đã tải thông tin từ lịch sử!");
+
+                showToast("Đã tải dữ liệu lịch sử!");
             }
         };
 
-        // Delete single history item
         window.deleteHistoryItem = function(id) {
             scanHistory = scanHistory.filter(it => it.id !== id);
             localStorage.setItem('scan_history', JSON.stringify(scanHistory));
             renderHistoryList();
-            showToast("Đã xóa mục lịch sử!");
+            showToast("Đã xóa dòng lịch sử!");
         };
 
-        // Delete all history
         function clearAllHistory() {
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử quét hóa đơn không?")) {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử quét không?")) {
                 scanHistory = [];
                 localStorage.removeItem('scan_history');
                 renderHistoryList();
@@ -1471,79 +1906,127 @@
             }
         }
 
-        // Export data to CSV (Excel compatible)
+        // Copy dynamic table to clipboard
+        function copyTableToClipboard() {
+            if (!currentExtractedData || !currentExtractedData.items) return;
+
+            let tsvContent = '';
+
+            if (activeDocType === 'invoice') {
+                tsvContent = "STT\tTên gốc\tTên dịch Việt\tSố lượng\tĐơn giá\tThành tiền\n";
+                currentExtractedData.items.forEach((item, index) => {
+                    tsvContent += `${index + 1}\t${item.original_name}\t${item.translated_name}\t${item.quantity}\t${item.price}\t${item.total}\n`;
+                });
+            } else if (activeDocType === 'packing_list') {
+                tsvContent = "Mã kiện\tMô tả hàng dịch\tSố lượng sản phẩm\tTrọng lượng NW (kg)\tTrọng lượng GW (kg)\tKích thước/Thể tích\n";
+                currentExtractedData.items.forEach(item => {
+                    tsvContent += `${item.package_no}\t${item.description}\t${item.quantity}\t${item.net_weight}\t${item.gross_weight}\t${item.dimensions}\n`;
+                });
+            } else if (activeDocType === 'bill_of_lading') {
+                tsvContent = "Số Cont/Seal\tMô tả hàng hóa\tSố kiện/Loại kiện\tTrọng lượng GW\tThể tích CBM\n";
+                currentExtractedData.items.forEach(item => {
+                    tsvContent += `${item.container_seal}\t${item.description}\t${item.quantity}\t${item.weight}\t${item.volume || ''}\n`;
+                });
+            } else if (activeDocType === 'co') {
+                tsvContent = "STT\tMô tả hàng hóa\tHS Code\tTiêu chí xuất xứ\tHóa đơn đính kèm\n";
+                currentExtractedData.items.forEach(item => {
+                    tsvContent += `${item.item_no}\t${item.description}\t${item.hs_code}\t${item.origin_criterion}\t${item.invoice_info}\n`;
+                });
+            }
+
+            navigator.clipboard.writeText(tsvContent).then(() => {
+                showToast("Đã sao chép bảng! Nhấn Ctrl+V để dán trực tiếp vào Excel.");
+            }).catch(() => {
+                showToast("Lỗi sao chép.");
+            });
+        }
+
+        // Export data to CSV
         function exportTableToCsv() {
             if (!currentExtractedData || !currentExtractedData.items) return;
 
-            let csvContent = "\ufeff"; // BOM for UTF-8 Excel support
-            csvContent += "STT,Tên gốc Trung Quốc,Tên dịch tiếng Việt,Số lượng,Đơn giá (CNY),Thành tiền (CNY),Thành tiền (VND)\n";
+            let csvContent = "\ufeff"; // BOM UTF-8
 
-            const rate = parseFloat(exchangeRateInput.value) || 3500;
-
-            currentExtractedData.items.forEach((item, index) => {
-                const totalCny = parseFloat(item.total_cny) || 0;
-                const totalVnd = totalCny * rate;
-                
-                const row = [
-                    index + 1,
-                    `"${item.original_name.replace(/"/g, '""')}"`,
-                    `"${item.translated_name.replace(/"/g, '""')}"`,
-                    `"${item.quantity.replace(/"/g, '""')}"`,
-                    item.price_cny,
-                    item.total_cny,
-                    Math.round(totalVnd)
-                ].join(",");
-                csvContent += row + "\n";
-            });
-
-            // Metadata summary block at the bottom
-            csvContent += `\nTổng tiền tệ (CNY),,${currentExtractedData.total_cny}\n`;
-            csvContent += `Tỷ giá tệ,,${rate}\n`;
-            csvContent += `Tổng tiền quy đổi (VND),,${currentExtractedData.total_cny * rate}\n`;
-            csvContent += `Ngày hóa đơn,,${currentExtractedData.date || ''}\n`;
-            csvContent += `Mã hóa đơn,,${currentExtractedData.invoice_number || ''}\n`;
+            if (activeDocType === 'invoice') {
+                csvContent += "STT,Tên hàng gốc,Tên dịch tiếng Việt,Số lượng,Đơn giá,Thành tiền\n";
+                currentExtractedData.items.forEach((item, index) => {
+                    csvContent += `${index + 1},"${item.original_name.replace(/"/g, '""')}"` +
+                                  `,"${item.translated_name.replace(/"/g, '""')}"` +
+                                  `,"${item.quantity.replace(/"/g, '""')}",${item.price},${item.total}\n`;
+                });
+                csvContent += `\nTổng cộng (CNY),,${currentExtractedData.total_amount}\n`;
+                csvContent += `Ngày hóa đơn,,${currentExtractedData.date || ''}\n`;
+                csvContent += `Số hóa đơn,,${currentExtractedData.invoice_number || ''}\n`;
+            } 
+            else if (activeDocType === 'packing_list') {
+                csvContent += "Mã kiện,Mô tả đóng gói dịch Việt,Số lượng,TL Tịnh NW (kg),TL Thô GW (kg),Thể tích/Kích thước\n";
+                currentExtractedData.items.forEach(item => {
+                    csvContent += `"${item.package_no.replace(/"/g, '""')}"` +
+                                  `,"${item.description.replace(/"/g, '""')}"` +
+                                  `,"${item.quantity.replace(/"/g, '""')}"` +
+                                  `,"${item.net_weight.replace(/"/g, '""')}"` +
+                                  `,"${item.gross_weight.replace(/"/g, '""')}"` +
+                                  `,"${item.dimensions.replace(/"/g, '""')}"\n`;
+                });
+                csvContent += `\nTổng số kiện,,${currentExtractedData.total_packages || ''}\n`;
+                csvContent += `Tổng trọng lượng Gross,,${currentExtractedData.total_gross_weight || ''}\n`;
+                csvContent += `Tổng thể tích CBM,,${currentExtractedData.total_volume || ''}\n`;
+            } 
+            else if (activeDocType === 'bill_of_lading') {
+                csvContent += "Số Cont/Seal,Mô tả hàng hóa vận đơn,Số lượng kiện,Trọng lượng GW,Thể tích CBM\n";
+                currentExtractedData.items.forEach(item => {
+                    csvContent += `"${item.container_seal.replace(/"/g, '""')}"` +
+                                  `,"${item.description.replace(/"/g, '""')}"` +
+                                  `,"${item.quantity.replace(/"/g, '""')}"` +
+                                  `,"${item.weight.replace(/"/g, '""')}"` +
+                                  `,"${(item.volume || '').replace(/"/g, '""')}"\n`;
+                });
+                csvContent += `\nSố vận đơn B/L No,,${currentExtractedData.bl_number || ''}\n`;
+                csvContent += `Hãng tàu,,${currentExtractedData.carrier || ''}\n`;
+                csvContent += `Tàu & Chuyến,,${currentExtractedData.vessel_flight || ''}\n`;
+                csvContent += `Cảng bốc POL,,${currentExtractedData.port_loading || ''}\n`;
+                csvContent += `Cảng dỡ POD,,${currentExtractedData.port_discharge || ''}\n`;
+            } 
+            else if (activeDocType === 'co') {
+                csvContent += "Mục,Mô tả hàng hóa,Mã HS Code,Tiêu chí xuất xứ,Hóa đơn đính kèm\n";
+                currentExtractedData.items.forEach(item => {
+                    csvContent += `"${(item.item_no || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${item.description.replace(/"/g, '""')}"` +
+                                  `,"${item.hs_code.replace(/"/g, '""')}"` +
+                                  `,"${item.origin_criterion.replace(/"/g, '""')}"` +
+                                  `,"${item.invoice_info.replace(/"/g, '""')}"\n`;
+                });
+                csvContent += `\nSố C/O Reference No,,${currentExtractedData.co_number || ''}\n`;
+                csvContent += `Loại Form,,${currentExtractedData.co_form || ''}\n`;
+                csvContent += `Nước xuất xứ,,${currentExtractedData.country_origin || ''}\n`;
+                csvContent += `Nước nhập khẩu,,${currentExtractedData.country_destination || ''}\n`;
+            }
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             
-            const fileName = `Dich_Hoa_Don_${currentExtractedData.invoice_number || Date.now()}.csv`;
+            const fileName = `Dich_${activeDocType}_${currentExtractedData.invoice_number || currentExtractedData.bl_number || currentExtractedData.co_number || Date.now()}.csv`;
             link.setAttribute("href", url);
             link.setAttribute("download", fileName);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast("Đã xuất file CSV thành công!");
+            showToast("Đã tải xuống file CSV thành công!");
         }
 
-        // Copy Table to Clipboard (Rich text compatible with Excel paste)
-        function copyTableToClipboard() {
-            if (!currentExtractedData || !currentExtractedData.items) return;
-
-            let tsvContent = "STT\tTên gốc Trung Quốc\tTên dịch tiếng Việt\tSố lượng\tĐơn giá (CNY)\tThành tiền (CNY)\n";
-            currentExtractedData.items.forEach((item, index) => {
-                tsvContent += `${index + 1}\t${item.original_name}\t${item.translated_name}\t${item.quantity}\t${item.price_cny}\t${item.total_cny}\n`;
-            });
-
-            navigator.clipboard.writeText(tsvContent).then(() => {
-                showToast("Đã sao chép bảng! Bạn có thể dán (Ctrl+V) vào Excel.");
-            }).catch(() => {
-                showToast("Lỗi sao chép dữ liệu.");
-            });
-        }
-
-        // Copy Raw JSON to Clipboard
+        // Copy Raw JSON
         function copyJsonToClipboard() {
             const rawJson = jsonBox.textContent;
             navigator.clipboard.writeText(rawJson).then(() => {
                 showToast("Đã sao chép chuỗi JSON gốc!");
             }).catch(() => {
-                showToast("Lỗi sao chép dữ liệu.");
+                showToast("Lỗi sao chép JSON.");
             });
         }
 
-        // UI Toast notifier
+        // Toast Helper
         function showToast(msg) {
             const toast = document.getElementById('toast-notif');
             document.getElementById('toast-message').textContent = msg;
@@ -1553,7 +2036,7 @@
             }, 3000);
         }
 
-        // Helper: Escape HTML
+        // HTML escaping
         function escapeHtml(text) {
             if (!text) return '';
             const map = {
@@ -1566,7 +2049,7 @@
             return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // Helper: Format currencies
+        // Currency format
         function formatCurrency(val) {
             if (!val) return '0.00';
             return new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
