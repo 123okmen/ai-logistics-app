@@ -1201,10 +1201,12 @@
             request_analyzer: `Bạn là trợ lý AI chuyên nghiệp phân tích tin nhắn/yêu cầu đặt hàng hoặc Bản báo giá nhập khẩu chính ngạch của FASTGO LOGISTICS.
             Nhiệm vụ của bạn là trích xuất dữ liệu từ văn bản, đoạn chat hoặc file PDF và chuẩn hóa thành cấu trúc bảng tính báo giá chi tiết.
             
-            ⚠️ LƯU Ý VỀ CÔNG THỨC VÀ CÁC LOẠI PHÍ (Nếu không có sẵn trong tài liệu, hãy tự tính toán hợp lý dựa trên giá trị hàng):
-            - Phí mua hàng: Mặc định bằng 2% của Giá trị hàng.
-            - Phí ủy thác: Mặc định bằng 500.000đ cho mỗi đơn hàng hoặc dòng hàng (nếu không ghi rõ).
-            - Thuế VAT: Mặc định bằng 8% của Giá xuất (Giá xuất = Giá trị hàng + Cước TQ + Cước VN + Phí ủy thác + Phí mua hàng).
+            ⚠️ LƯU Ý VỀ CÔNG THỨC VÀ CÁC LOẠI PHÍ (Sử dụng tỷ giá mặc định 3500đ nếu không có sẵn trong tài liệu):
+            - Giá mua hàng (VND) = Giá gốc (CNY) * 1.7 * Tỷ giá * Số lượng.
+            - Cước TQ (VND) = Trọng lượng (kg) * 1 CNY/kg * Tỷ giá.
+            - Phí hải quan (VND) = Cố định 500.000đ cho mỗi mặt hàng.
+            - Phí mua hộ (VND) = 2% của Giá mua hàng (VND).
+            - Thuế VAT: Mặc định bằng 8% của Giá xuất (Giá xuất = Giá mua hàng + Cước TQ + Cước VN + Phí hải quan + Phí mua hộ).
             - Thành tiền (sau VAT) = Giá xuất + VAT.
             - Tiền cọc (70%) = 70% của Tổng thành tiền.
             - Còn lại (30%) = 30% của Tổng thành tiền.
@@ -1218,20 +1220,22 @@
               "items": [
                 {
                   "name": "Tên sản phẩm (ví dụ: Cáp audio Mini Din 9 chân)",
-                  "quantity": "Số lượng kèm đơn vị (ví dụ: 300 dây, 120 cái)",
-                  "value": giá trị hàng bằng VND (kiểu số, ví dụ: 34300000),
-                  "shipping_cn": cước vận chuyển Trung Quốc bằng VND (kiểu số, ví dụ: 605000),
-                  "shipping_vn": cước vận chuyển Việt Nam bằng VND (kiểu số, ví dụ: 300000),
-                  "entrustment_fee": phí ủy thác bằng VND (kiểu số, ví dụ: 500000),
-                  "service_fee": phí mua hàng bằng VND (kiểu số, ví dụ: 686000),
-                  "total_before_vat": giá xuất trước VAT bằng VND (kiểu số, ví dụ: 36391000),
-                  "vat": thuế VAT 8% bằng VND (kiểu số, ví dụ: 2911280),
-                  "total_with_vat": thành tiền sau VAT bằng VND (kiểu số, ví dụ: 39302280)
+                  "quantity": số lượng sản phẩm (kiểu số, ví dụ: 300),
+                  "weight_kg": tổng trọng lượng của dòng hàng tính bằng kg (kiểu số, ví dụ: 50),
+                  "original_price_cny": đơn giá gốc Trung Quốc bằng CNY (kiểu số, ví dụ: 98),
+                  "value": giá mua hàng bằng VND (kiểu số, ví dụ: 98 * 1.7 * 3500 * 300 = 174930000),
+                  "shipping_cn": cước vận chuyển Trung Quốc bằng VND (kiểu số, ví dụ: 50 * 1 * 3500 = 175000),
+                  "shipping_vn": cước vận chuyển Việt Nam bằng VND (kiểu số, mặc định 0 hoặc ghi theo tài liệu),
+                  "entrustment_fee": phí hải quan bằng VND (kiểu số, mặc định 500000),
+                  "service_fee": phí mua hộ bằng VND (kiểu số, ví dụ: 2% of 174930000 = 3498600),
+                  "total_before_vat": giá xuất trước VAT bằng VND (kiểu số),
+                  "vat": thuế VAT 8% bằng VND (kiểu số),
+                  "total_with_vat": thành tiền sau VAT bằng VND (kiểu số)
                 }
               ],
-              "grand_total": tổng số tiền thanh toán của các dòng hàng sau VAT (kiểu số, ví dụ: 42358680),
-              "deposit_70": số tiền đặt cọc 70% (kiểu số, ví dụ: 29651076),
-              "balance_30": số tiền thanh toán còn lại 30% (kiểu số, ví dụ: 12707604),
+              "grand_total": tổng số tiền thanh toán của các dòng hàng sau VAT (kiểu số),
+              "deposit_70": số tiền đặt cọc 70% (kiểu số),
+              "balance_30": số tiền thanh toán còn lại 30% (kiểu số),
               "notes": "Các lưu ý đặc biệt, chính sách hoặc hạn giao hàng..."
             }`
         };
@@ -1374,12 +1378,41 @@
                 }
 
                 updateRateDisplay(val);
-                if (currentExtractedData && activeDocType === 'invoice') {
-                    const totalVndEl = document.getElementById('meta-val-total-vnd');
-                    if (totalVndEl) {
-                        const totalAmount = parseFloat(currentExtractedData.total_amount) || 0;
-                        const rate = parseFloat(val) || 1;
-                        totalVndEl.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalAmount * rate)) + 'đ';
+                
+                if (currentExtractedData) {
+                    if (activeDocType === 'invoice') {
+                        const totalVndEl = document.getElementById('meta-val-total-vnd');
+                        if (totalVndEl) {
+                            const totalAmount = parseFloat(currentExtractedData.total_amount) || 0;
+                            const rate = parseFloat(val) || 1;
+                            totalVndEl.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalAmount * rate)) + 'đ';
+                        }
+                    } else if (activeDocType === 'request_analyzer' && currentExtractedData.items) {
+                        const rate = parseFloat(val) || 3500;
+                        currentExtractedData.items.forEach(item => {
+                            const qty = parseFloat(item.quantity) || 0;
+                            const weight = parseFloat(item.weight_kg) || 0;
+                            const origPrice = parseFloat(item.original_price_cny) || 0;
+                            const shipVn = parseFloat(item.shipping_vn) || 0;
+                            const customs = parseFloat(item.entrustment_fee) || 0;
+                            
+                            item.value = Math.round(origPrice * 1.7 * rate * qty);
+                            item.shipping_cn = Math.round(weight * 1 * rate);
+                            item.service_fee = Math.round(0.02 * item.value);
+                            item.total_before_vat = item.value + item.shipping_cn + shipVn + customs + item.service_fee;
+                            item.vat = Math.round(0.08 * item.total_before_vat);
+                            item.total_with_vat = item.total_before_vat + item.vat;
+                        });
+                        
+                        let sumTotal = 0;
+                        currentExtractedData.items.forEach(it => {
+                            sumTotal += it.total_with_vat || 0;
+                        });
+                        currentExtractedData.grand_total = sumTotal;
+                        currentExtractedData.deposit_70 = Math.round(0.7 * sumTotal);
+                        currentExtractedData.balance_30 = Math.round(0.3 * sumTotal);
+                        
+                        renderRequestAnalyzerLayout();
                     }
                 }
             });
@@ -2078,85 +2111,104 @@
 
         // 5. CLIENT REQUEST ANALYZER LAYOUT
         function renderRequestAnalyzerLayout() {
-            tableTitle.textContent = "Thông số booking đơn hàng chi tiết";
+            tableTitle.textContent = "Bảng kê báo giá nhập khẩu chi tiết (FastGo)";
             dynamicTableContainer.style.display = 'block';
             bookingConfirmBox.style.display = 'block';
 
             // Meta cards
             dynamicMetaGrid.innerHTML = `
                 <div class="meta-item">
-                    <span class="meta-label">Khách hàng</span>
+                    <span class="meta-label">Khách hàng / Đơn vị nhập khẩu</span>
                     <span class="meta-val" contenteditable="true" data-key="customer_name" id="b-cust-name">${escapeHtml(currentExtractedData.customer_name || 'Khách vãng lai')}</span>
                 </div>
                 <div class="meta-item">
-                    <span class="meta-label">Kho nhận (TQ)</span>
-                    <span class="meta-val" contenteditable="true" data-key="pickup_location" id="b-pickup">${escapeHtml(currentExtractedData.pickup_location || 'N/A')}</span>
+                    <span class="meta-label">Mã số thuế (MST)</span>
+                    <span class="meta-val" contenteditable="true" data-key="tax_id" id="b-tax-id">${escapeHtml(currentExtractedData.tax_id || 'N/A')}</span>
                 </div>
                 <div class="meta-item">
-                    <span class="meta-label">Kho giao (VN)</span>
-                    <span class="meta-val" contenteditable="true" data-key="delivery_location" id="b-delivery">${escapeHtml(currentExtractedData.delivery_location || 'N/A')}</span>
+                    <span class="meta-label">Địa chỉ giao hàng</span>
+                    <span class="meta-val" contenteditable="true" data-key="address" id="b-address">${escapeHtml(currentExtractedData.address || 'N/A')}</span>
                 </div>
                 <div class="meta-item">
-                    <span class="meta-label">Hình thức vận chuyển</span>
-                    <span class="meta-val" contenteditable="true" data-key="shipping_method" id="b-method">${escapeHtml(currentExtractedData.shipping_method || 'Đường bộ')}</span>
+                    <span class="meta-label">Tài khoản thanh toán</span>
+                    <span class="meta-val" contenteditable="true" data-key="bank_info" id="b-bank-info">${escapeHtml(currentExtractedData.bank_info || 'N/A')}</span>
                 </div>
             `;
 
-            // Addresses row handles cargo, limits, and pricing quotes
+            const grandTotal = currentExtractedData.grand_total || 0;
+            const deposit70 = currentExtractedData.deposit_70 || 0;
+            const balance30 = currentExtractedData.balance_30 || 0;
+
+            // Summary prices row
             dynamicAddressesGrid.innerHTML = `
-                <div class="meta-item">
-                    <span class="meta-label">Mô tả hàng hóa</span>
-                    <span class="meta-val" contenteditable="true" data-key="cargo_description" id="b-desc" style="font-size: 1rem; font-weight: 500;">${escapeHtml(currentExtractedData.cargo_description || 'N/A')}</span>
+                <div class="meta-item" style="grid-column: span 1; border-left: 3px solid #fbbf24;">
+                    <span class="meta-label" style="color: #fbbf24; font-weight: 600;"><i data-lucide="wallet" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Tổng cộng sau VAT (VND)</span>
+                    <span class="meta-val" style="font-size: 1.2rem; font-weight: bold; color: #fbbf24;" id="b-grand-total">${new Intl.NumberFormat('vi-VN').format(grandTotal)}đ</span>
                 </div>
-                <div class="meta-item">
-                    <span class="meta-label">Hạn giao hàng yêu cầu</span>
-                    <span class="meta-val" contenteditable="true" data-key="delivery_deadline" id="b-deadline" style="font-size: 1rem; font-weight: 500; color: #f59e0b;">${escapeHtml(currentExtractedData.delivery_deadline || 'Không có')}</span>
+                <div class="meta-item" style="grid-column: span 1; border-left: 3px solid #10b981;">
+                    <span class="meta-label" style="color: #10b981; font-weight: 600;"><i data-lucide="shield-check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Đợt 1: Đặt cọc 70%</span>
+                    <span class="meta-val" style="font-size: 1.1rem; font-weight: bold; color: #10b981;" id="b-deposit">${new Intl.NumberFormat('vi-VN').format(deposit70)}đ</span>
                 </div>
-                <div class="meta-item" style="grid-column: span 1;">
-                    <span class="meta-label" style="color: #10b981; font-weight: 600;"><i data-lucide="calculator" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Cước vận chuyển dự kiến</span>
-                    <span class="meta-val" contenteditable="true" data-key="freight_quote" id="b-freight" style="font-size: 1.05rem; font-weight: 600; color: #10b981;">${escapeHtml(currentExtractedData.freight_quote || 'Chưa báo giá')}</span>
-                </div>
-                <div class="meta-item" style="grid-column: span 1;">
-                    <span class="meta-label" style="color: #a78bfa; font-weight: 600;"><i data-lucide="coins" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Phụ phí & Phí khác</span>
-                    <span class="meta-val" contenteditable="true" data-key="other_fees" id="b-other-fees" style="font-size: 1.05rem; font-weight: 600; color: #a78bfa;">${escapeHtml(currentExtractedData.other_fees || 'Không có')}</span>
-                </div>
-                <div class="meta-item" style="grid-column: span 2;">
-                    <span class="meta-label" style="color: #fbbf24; font-weight: 600;"><i data-lucide="wallet" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Tổng chi phí dự kiến tạm tính</span>
-                    <span class="meta-val" contenteditable="true" data-key="total_cost" id="b-total-cost" style="font-size: 1.2rem; font-weight: bold; color: #fbbf24;">${escapeHtml(currentExtractedData.total_cost || 'Liên hệ báo giá')}</span>
-                </div>
-                <div class="meta-item" style="grid-column: span 2; background: rgba(255,255,255,0.02); border-left: 3px solid #fbbf24; padding-left: 0.75rem;">
-                    <span class="meta-label" style="font-weight: 600;">Điều khoản / Chi tiết báo giá</span>
-                    <span class="meta-val" contenteditable="true" data-key="quote_details" id="b-quote-details" style="font-size: 0.9rem; font-style: italic; color: var(--text-muted); display: block; line-height: 1.4;">${escapeHtml(currentExtractedData.quote_details || 'Báo giá chưa bao gồm thuế phí hải quan.')}</span>
+                <div class="meta-item" style="grid-column: span 2; border-left: 3px solid #a78bfa;">
+                    <span class="meta-label" style="color: #a78bfa; font-weight: 600;"><i data-lucide="coins" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Đợt 2: Thanh toán nốt 30%</span>
+                    <span class="meta-val" style="font-size: 1.1rem; font-weight: bold; color: #a78bfa;" id="b-balance">${new Intl.NumberFormat('vi-VN').format(balance30)}đ</span>
                 </div>
             `;
 
             // Table displays weight/volume parameters
             tableHead.innerHTML = `
                 <tr>
-                    <th style="width: 40%">Quy cách / Số lượng</th>
-                    <th style="width: 30%">Trọng lượng (GW kg)</th>
-                    <th style="width: 30%">Thể tích (Volume CBM)</th>
+                    <th style="width: 3%">STT</th>
+                    <th style="width: 20%">Tên mặt hàng</th>
+                    <th style="width: 7%">Số lượng</th>
+                    <th style="width: 8%">Trọng lượng (kg)</th>
+                    <th style="width: 8%">Giá gốc (CNY)</th>
+                    <th style="width: 12%">Giá mua (VND)</th>
+                    <th style="width: 8%">Cước TQ (VND)</th>
+                    <th style="width: 8%">Cước VN (VND)</th>
+                    <th style="width: 8%">Hải quan (VND)</th>
+                    <th style="width: 8%">Mua hộ (2%)</th>
+                    <th style="width: 5%">VAT (8%)</th>
+                    <th style="width: 11%">Thành tiền (VND)</th>
                 </tr>
             `;
 
-            // Insert single row for editable weight/volume
-            tableBody.innerHTML = `
-                <tr>
-                    <td contenteditable="true" class="editable-cell" data-field="quantity" id="b-qty">${escapeHtml(currentExtractedData.quantity || 'N/A')}</td>
-                    <td contenteditable="true" class="editable-cell" data-field="weight_kg" id="b-weight">${escapeHtml(currentExtractedData.weight_kg || '0')}</td>
-                    <td contenteditable="true" class="editable-cell" data-field="volume_cbm" id="b-volume">${escapeHtml(currentExtractedData.volume_cbm || '0')}</td>
-                </tr>
-            `;
+            // Insert rows for items
+            tableBody.innerHTML = '';
+            if (currentExtractedData.items && currentExtractedData.items.length > 0) {
+                currentExtractedData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="name" data-index="${index}">${escapeHtml(item.name || '')}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="quantity" data-index="${index}">${new Intl.NumberFormat('vi-VN').format(item.quantity || 0)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="weight_kg" data-index="${index}">${new Intl.NumberFormat('vi-VN').format(item.weight_kg || 0)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="original_price_cny" data-index="${index}">${new Intl.NumberFormat('vi-VN').format(item.original_price_cny || 0)}</td>
+                        <td>${new Intl.NumberFormat('vi-VN').format(item.value || 0)}</td>
+                        <td>${new Intl.NumberFormat('vi-VN').format(item.shipping_cn || 0)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="shipping_vn" data-index="${index}">${new Intl.NumberFormat('vi-VN').format(item.shipping_vn || 0)}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="entrustment_fee" data-index="${index}">${new Intl.NumberFormat('vi-VN').format(item.entrustment_fee || 0)}</td>
+                        <td>${new Intl.NumberFormat('vi-VN').format(item.service_fee || 0)}</td>
+                        <td>${new Intl.NumberFormat('vi-VN').format(item.vat || 0)}</td>
+                        <td style="font-weight: 600; color: var(--accent-primary);">${new Intl.NumberFormat('vi-VN').format(item.total_with_vat || 0)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:var(--text-muted);">Không tìm thấy dòng hàng nào.</td></tr>`;
+            }
 
             // Setup confirmation message
             generateConfirmationMessage();
 
-            // Listeners to regenerate confirmation text when editing
-            document.querySelectorAll('#dynamic-table-container td, #dynamic-meta-grid span, #dynamic-addresses-grid span').forEach(el => {
-                el.addEventListener('input', () => {
-                    setTimeout(syncAndRegenerateConfirmText, 50);
-                });
+            // Listeners to update confirm text and database when editing
+            document.querySelectorAll('#dynamic-table-container td.editable-cell').forEach(el => {
+                el.addEventListener('blur', handleCellEdit);
             });
+            document.querySelectorAll('.meta-val').forEach(el => {
+                el.addEventListener('blur', handleCellEdit);
+            });
+            
             lucide.createIcons();
         }
 
@@ -2165,63 +2217,43 @@
             if (!currentExtractedData) return;
             const c = currentExtractedData;
             
-            const msg = `Kính gửi ${c.customer_name || 'anh/chị'}, em xin gửi thông tin xác nhận lại booking vận chuyển & báo giá dự kiến:
-- Mặt hàng: ${c.cargo_description || 'N/A'}
-- Quy cách: ${c.quantity || 'N/A'}
-- Trọng lượng: ${c.weight_kg || '0'} kg
-- Thể tích: ${c.volume_cbm || '0'} CBM
-- Tuyến đi: ${c.pickup_location || 'N/A'} ➔ ${c.delivery_location || 'N/A'}
-- Hình thức: ${c.shipping_method || 'N/A'}
-- Hạn giao hàng: ${c.delivery_deadline || 'N/A'}
+            let itemLines = '';
+            if (c.items && c.items.length > 0) {
+                c.items.forEach((item, index) => {
+                    itemLines += `${index + 1}. ${item.name || 'Sản phẩm'}\n`;
+                    itemLines += `  - Số lượng / Cân nặng: ${new Intl.NumberFormat('vi-VN').format(item.quantity || 0)} cái / ${new Intl.NumberFormat('vi-VN').format(item.weight_kg || 0)}kg\n`;
+                    itemLines += `  - Giá gốc: ${new Intl.NumberFormat('vi-VN').format(item.original_price_cny || 0)} CNY\n`;
+                    itemLines += `  - Giá mua: ${new Intl.NumberFormat('vi-VN').format(item.value || 0)}đ\n`;
+                    itemLines += `  - Cước TQ / VN: ${new Intl.NumberFormat('vi-VN').format(item.shipping_cn || 0)}đ / ${new Intl.NumberFormat('vi-VN').format(item.shipping_vn || 0)}đ\n`;
+                    itemLines += `  - Phí mua hộ (2%): ${new Intl.NumberFormat('vi-VN').format(item.service_fee || 0)}đ\n`;
+                    itemLines += `  - Thuế VAT (8%): ${new Intl.NumberFormat('vi-VN').format(item.vat || 0)}đ\n`;
+                    itemLines += `  ➔ Thành tiền: ${new Intl.NumberFormat('vi-VN').format(item.total_with_vat || 0)}đ\n`;
+                });
+            }
+
+            const msg = `Kính gửi quý khách, FASTGO LOGISTICS xin gửi bản báo giá nhập khẩu chính ngạch:
+🏢 Khách hàng: ${c.customer_name || 'N/A'}
+📌 MST: ${c.tax_id || 'N/A'}
+📍 Địa chỉ giao hàng: ${c.address || 'N/A'}
 ------------------------------------
-💰 BÁO GIÁ DỊCH VỤ DỰ KIẾN:
-- Cước vận chuyển chính: ${c.freight_quote || 'Chưa có'}
-- Phụ phí & phí khác: ${c.other_fees || 'Không có'}
-➔ Tổng chi phí tạm tính: ${c.total_cost || 'Liên hệ báo giá'}
-* Lưu ý: ${c.quote_details || 'Giá tính theo cân thực tế khi hàng về kho.'}
+📋 CHI TIẾT ĐƠN HÀNG:
+${itemLines}------------------------------------
+💰 TỔNG CỘNG THANH TOÁN (SAU VAT): ${new Intl.NumberFormat('vi-VN').format(c.grand_total || 0)}đ
+💳 THANH TOÁN THEO ĐỢT:
+- Đợt 1: Đặt cọc 70%: ${new Intl.NumberFormat('vi-VN').format(c.deposit_70 || 0)}đ
+- Đợt 2: Thanh toán nốt 30%: ${new Intl.NumberFormat('vi-VN').format(c.balance_30 || 0)}đ
+
+🏦 THÔNG TIN CHUYỂN KHOẢN:
+${c.bank_info || 'STK: 971555 - Techcombank'}
+* Lưu ý: ${c.notes || 'Giá tính theo cân thực tế và quy cách khi hàng về kho.'}
 ------------------------------------
-${c.notes ? `* Lưu ý đặc biệt: ${c.notes}` : ''}
-Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
+FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
 
             valConfirmText.value = msg;
         }
 
         function syncAndRegenerateConfirmText() {
-            // Read values directly from UI to keep it fast
-            const cust = document.getElementById('b-cust-name')?.textContent.trim();
-            const pick = document.getElementById('b-pickup')?.textContent.trim();
-            const del = document.getElementById('b-delivery')?.textContent.trim();
-            const meth = document.getElementById('b-method')?.textContent.trim();
-            const desc = document.getElementById('b-desc')?.textContent.trim();
-            const dead = document.getElementById('b-deadline')?.textContent.trim();
-            const qty = document.getElementById('b-qty')?.textContent.trim();
-            const weight = document.getElementById('b-weight')?.textContent.trim();
-            const vol = document.getElementById('b-volume')?.textContent.trim();
-            
-            const freight = document.getElementById('b-freight')?.textContent.trim();
-            const other = document.getElementById('b-other-fees')?.textContent.trim();
-            const total = document.getElementById('b-total-cost')?.textContent.trim();
-            const details = document.getElementById('b-quote-details')?.textContent.trim();
-
-            if (currentExtractedData) {
-                currentExtractedData.customer_name = cust;
-                currentExtractedData.pickup_location = pick;
-                currentExtractedData.delivery_location = del;
-                currentExtractedData.shipping_method = meth;
-                currentExtractedData.cargo_description = desc;
-                currentExtractedData.delivery_deadline = dead;
-                currentExtractedData.quantity = qty;
-                currentExtractedData.weight_kg = weight;
-                currentExtractedData.volume_cbm = vol;
-                
-                currentExtractedData.freight_quote = freight;
-                currentExtractedData.other_fees = other;
-                currentExtractedData.total_cost = total;
-                currentExtractedData.quote_details = details;
-                
-                generateConfirmationMessage();
-                jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
-            }
+            // Deprecated - handled directly by handleCellEdit
         }
 
         // Inline Table Edits for grids
