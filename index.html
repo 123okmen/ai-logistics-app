@@ -1590,7 +1590,7 @@
                 fileReader.onload = async function() {
                     try {
                         const typedarray = new Uint8Array(this.result);
-                        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                        const pdfjsLib = window.pdfjsLib;
                         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
                         
                         const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
@@ -1728,7 +1728,14 @@
                 setStepStatus(step2, 'completed');
                 setStepStatus(step3, 'active');
 
-                const response = await fetch(`${apiEndpoint}/v1/chat/completions`, {
+                let fetchUrl = `${apiEndpoint}/v1/chat/completions`;
+                
+                // Solve client-side browser CORS blocking by routing direct requests through corsproxy.io
+                if (fetchUrl.includes('googleapis.com') || fetchUrl.includes('api.groq.com') || fetchUrl.includes('api.openai.com')) {
+                    fetchUrl = `https://corsproxy.io/?url=${encodeURIComponent(fetchUrl)}`;
+                }
+
+                const response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
