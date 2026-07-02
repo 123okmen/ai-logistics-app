@@ -1657,6 +1657,80 @@
             });
         }
 
+        async function callGeminiNative(apiKey, modelName, activeDocType, userContent) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            const parts = [];
+            const systemInstruction = promptTemplates[activeDocType];
+            
+            userContent.forEach(item => {
+                if (item.type === 'text') {
+                    parts.push({ text: item.text });
+                } else if (item.type === 'image_url') {
+                    const dataUrl = item.image_url.url;
+                    const base64Data = dataUrl.split(',')[1];
+                    const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+                    parts.push({
+                        inlineData: {
+                            mimeType: mimeType,
+                            data: base64Data
+                        }
+                    });
+                }
+            });
+            
+            const payload = {
+                contents: [
+                    {
+                        role: 'user',
+                        parts: parts
+                    }
+                ],
+                generationConfig: {
+                    responseMimeType: 'application/json',
+                    temperature: 0.1
+                }
+            };
+            
+            if (systemInstruction) {
+                payload.systemInstruction = {
+                    parts: [
+                        { text: systemInstruction }
+                    ]
+                };
+            }
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                const errText = await response.text();
+                let errMsg = `HTTP ${response.status}`;
+                try {
+                    const errJson = JSON.parse(errText);
+                    errMsg = errJson.error?.message || errMsg;
+                } catch(e) {}
+                throw new Error(errMsg);
+            }
+            
+            const data = await response.json();
+            const responseText = data.candidates[0].content.parts[0].text;
+            
+            return {
+                choices: [
+                    {
+                        message: {
+                            content: responseText
+                        }
+                    }
+                ]
+            };
+        }
+
         // Calling OpenAI API
         async function processDocument() {
             const apiKey = apiKeyInput.value.trim();
@@ -1728,46 +1802,54 @@
                 setStepStatus(step2, 'completed');
                 setStepStatus(step3, 'active');
 
-                let fetchUrl = `${apiEndpoint}/v1/chat/completions`;
-                
-                // Solve client-side browser CORS blocking by routing direct requests through corsproxy.io
-                if (fetchUrl.includes('googleapis.com') || fetchUrl.includes('api.groq.com') || fetchUrl.includes('api.openai.com')) {
-                    fetchUrl = `https://corsproxy.io/?url=${encodeURIComponent(fetchUrl)}`;
-                }
+                let responseData;
+                const isGemini = providerSelect.value === 'gemini';
 
-                const response = await fetch(fetchUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: modelName,
-                        response_format: { type: 'json_object' },
-                        temperature: 0.1,
-                        messages: [
-                            {
-                                role: 'system',
-                                content: promptTemplates[activeDocType]
-                            },
-                            {
-                                role: 'user',
-                                content: userContent
-                            }
-                        ]
-                    })
-                });
+                if (isGemini) {
+                    responseData = await callGeminiNative(apiKey, modelName, activeDocType, userContent);
+                } else {
+                    let fetchUrl = `${apiEndpoint}/v1/chat/completions`;
+                    
+                    // Solve client-side browser CORS blocking by routing direct requests through corsproxy.io
+                    if (providerSelect.value !== 'custom' && (fetchUrl.includes('api.groq.com') || fetchUrl.includes('api.openai.com'))) {
+                        fetchUrl = `https://corsproxy.io/?url=${encodeURIComponent(fetchUrl)}`;
+                    }
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || `HTTP ${response.status}`);
+                    const response = await fetch(fetchUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: modelName,
+                            response_format: { type: 'json_object' },
+                            temperature: 0.1,
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: promptTemplates[activeDocType]
+                                },
+                                {
+                                    role: 'user',
+                                    content: userContent
+                                }
+                            ]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+                    }
+
+                    responseData = await response.json();
                 }
 
                 setStepStatus(step3, 'completed');
                 setStepStatus(step4, 'active');
 
-                const data = await response.json();
-                const jsonContent = JSON.parse(data.choices[0].message.content);
+                const jsonContent = JSON.parse(responseData.choices[0].message.content);
                 
                 currentExtractedData = jsonContent;
                 
