@@ -908,7 +908,7 @@
                 </div>
                 <div class="input-group">
                     <label class="input-label" for="exchange-rate-input">
-                        Tỷ giá quy đổi (Ví dụ CNY -> VND):
+                        <span id="rate-label-text">Tỷ giá quy đổi (CNY -> VND):</span>
                         <span id="rate-display" style="font-weight: bold; color: var(--accent-primary);">3,500đ</span>
                     </label>
                     <input type="number" id="exchange-rate-input" class="input-field" value="3500">
@@ -1119,21 +1119,31 @@
         // System Prompt Templates for different Logistics Document Types
         const promptTemplates = {
             invoice: `Bạn là trợ lý AI chuyên nghiệp xử lý Hóa đơn nhập khẩu (Commercial Invoice) trong ngành logistics. Hãy trích xuất dữ liệu ảnh chứng từ và dịch nghĩa các mặt hàng từ ngôn ngữ gốc sang tiếng Việt chuyên ngành thương mại/nhập khẩu chuẩn xác nhất.
+            
+            ⚠️ LƯU Ý ĐẶC BIỆT VỀ SỐ LƯỢNG (QUANTITY):
+            Hãy kiểm tra tính logic toán học của cột Số lượng (Quantity), Đơn giá (Unit Price) và Thành tiền (Amount).
+            Trong tiếng Việt và một số hóa đơn định dạng Việt Nam, dấu phẩy ',' được dùng làm phần thập phân. Ví dụ: '3,000' đại diện cho '3' (ba đơn vị), vì '3 * 399.000 = 1.197.000'.
+            Nếu trích xuất là '3,000' thì người dùng sẽ hiểu lầm là 3000 (ba nghìn).
+            Do đó, nếu bạn thấy '3,000' nhưng nhân ra kết quả thành tiền tương ứng là 3 lần đơn giá, hãy thông thái và chuẩn hóa số lượng này thành số thực tế là 3. Hãy loại bỏ các số không thừa ở phần thập phân gây hiểu lầm. Ví dụ: '3,000' -> '3', '1,000' -> '1', '2,000' -> '2'.
+
+            ⚠️ LƯU Ý VỀ TIỀN TỆ (CURRENCY):
+            Hãy đọc kỹ ký hiệu tiền tệ trên hóa đơn (VND, USD, CNY, RMB, v.v.). Hóa đơn của Việt Nam ghi bằng tiếng Việt, tiền thuế và thành tiền tính bằng hàng triệu đồng thường sử dụng VND. Bạn phải phân biệt và trích xuất đúng mã quốc tế của tiền tệ đó (ví dụ: 'VND', 'USD', 'CNY').
+
             Trả về cấu trúc JSON duy nhất:
             {
               "date": "Ngày hóa đơn (DD/MM/YYYY hoặc tương tự)",
               "invoice_number": "Số hóa đơn (Invoice No / Reference No)",
               "vendor": "Tên bên bán/nhà cung cấp (gốc & dịch Việt)",
               "buyer": "Tên bên mua/nhập khẩu (Việt Nam)",
-              "currency": "Đồng tiền thanh toán (Ví dụ: USD, CNY, EUR...)",
+              "currency": "Đồng tiền thanh toán (Ví dụ: USD, CNY, EUR, VND...)",
               "total_amount": số tiền tổng hóa đơn (kiểu số, ví dụ: 25800.50),
               "items": [
                 {
-                  "original_name": "Tên tiếng gốc (Trung/Anh)",
-                  "translated_name": "Tên dịch tiếng Việt chuẩn chuyên ngành thương mại",
-                  "quantity": "Số lượng kèm đơn vị (Ví dụ: 120 bộ, 500 cái)",
-                  "price": đơn giá (kiểu số, 0 nếu không tìm thấy),
-                  "total": thành tiền (kiểu số, 0 nếu không tìm thấy)"
+                  "original_name": "Tên tiếng gốc (Trung/Anh/Việt)",
+                  "translated_name": "Tên dịch tiếng Việt chuẩn chuyên ngành thương mại (nếu hóa đơn đã là tiếng Việt thì giữ nguyên)",
+                  "quantity": "Số lượng thực tế (dạng số nguyên hoặc số thập phân chuẩn hóa, ví dụ: 3 thay vì 3,000)",
+                  "price": đơn giá thực tế (kiểu số, ví dụ: 399000),
+                  "total": thành tiền thực tế (kiểu số, ví dụ: 1197000)
                 }
               ],
               "notes": "Các thông tin bổ sung như Incoterms, ngân hàng thanh toán, ký hiệu vận đơn..."
@@ -1465,14 +1475,24 @@
             exchangeRateInput.addEventListener('input', (e) => {
                 const val = e.target.value;
                 localStorage.setItem('exchange_rate', val);
+                
+                // Cache exchange rate per-currency
+                if (currentExtractedData && activeDocType === 'invoice') {
+                    const currency = (currentExtractedData.currency || 'CNY').toUpperCase();
+                    if (currency === 'USD') {
+                        localStorage.setItem('exchange_rate_usd', val);
+                    } else if (currency === 'CNY' || currency === 'RMB') {
+                        localStorage.setItem('exchange_rate_cny', val);
+                    }
+                }
+
                 updateRateDisplay(val);
                 if (currentExtractedData && activeDocType === 'invoice') {
-                    // Update equivalent VND totals
                     const totalVndEl = document.getElementById('meta-val-total-vnd');
                     if (totalVndEl) {
-                        const totalCny = parseFloat(currentExtractedData.total_amount) || 0;
-                        const rate = parseFloat(val) || 3500;
-                        totalVndEl.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalCny * rate)) + 'đ';
+                        const totalAmount = parseFloat(currentExtractedData.total_amount) || 0;
+                        const rate = parseFloat(val) || 1;
+                        totalVndEl.textContent = new Intl.NumberFormat('vi-VN').format(Math.round(totalAmount * rate)) + 'đ';
                     }
                 }
             });
@@ -1936,9 +1956,34 @@
         function renderInvoiceLayout() {
             tableTitle.textContent = "Chi tiết mặt hàng (Hóa đơn)";
             
-            const rate = parseFloat(exchangeRateInput.value) || 3500;
-            const currency = currentExtractedData.currency || 'CNY';
+            const currency = (currentExtractedData.currency || 'CNY').toUpperCase();
             const total = parseFloat(currentExtractedData.total_amount) || 0;
+            
+            let rate = 1;
+            const rateLabel = document.getElementById('rate-label-text');
+
+            if (currency === 'VND') {
+                rate = 1;
+                exchangeRateInput.value = 1;
+                updateRateDisplay(1);
+                if (rateLabel) rateLabel.textContent = "Tỷ giá quy đổi (VND -> VND):";
+            } else if (currency === 'USD') {
+                const savedUsdRate = localStorage.getItem('exchange_rate_usd') || '25400';
+                exchangeRateInput.value = savedUsdRate;
+                rate = parseFloat(savedUsdRate) || 25400;
+                updateRateDisplay(rate);
+                if (rateLabel) rateLabel.textContent = "Tỷ giá quy đổi (USD -> VND):";
+            } else if (currency === 'CNY' || currency === 'RMB') {
+                const savedCnyRate = localStorage.getItem('exchange_rate_cny') || '3500';
+                exchangeRateInput.value = savedCnyRate;
+                rate = parseFloat(savedCnyRate) || 3500;
+                updateRateDisplay(rate);
+                if (rateLabel) rateLabel.textContent = "Tỷ giá quy đổi (CNY -> VND):";
+            } else {
+                rate = parseFloat(exchangeRateInput.value) || 3500;
+                if (rateLabel) rateLabel.textContent = `Tỷ giá quy đổi (${currency} -> VND):`;
+            }
+
             const totalVnd = total * rate;
 
             // Meta cards
@@ -1994,8 +2039,8 @@
                         <td contenteditable="true" class="editable-cell" data-field="original_name" data-index="${index}">${escapeHtml(item.original_name)}</td>
                         <td contenteditable="true" class="editable-cell" data-field="translated_name" data-index="${index}">${escapeHtml(item.translated_name)}</td>
                         <td contenteditable="true" class="editable-cell" data-field="quantity" data-index="${index}">${escapeHtml(item.quantity)}</td>
-                        <td contenteditable="true" class="editable-cell" data-field="price" data-index="${index}">${item.price ? parseFloat(item.price).toFixed(2) : '0.00'}</td>
-                        <td contenteditable="true" class="editable-cell" data-field="total" data-index="${index}">${item.total ? parseFloat(item.total).toFixed(2) : '0.00'}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="price" data-index="${index}">${item.price ? (currency === 'VND' ? Math.round(parseFloat(item.price)) : parseFloat(item.price).toFixed(2)) : '0'}</td>
+                        <td contenteditable="true" class="editable-cell" data-field="total" data-index="${index}">${item.total ? (currency === 'VND' ? Math.round(parseFloat(item.total)) : parseFloat(item.total).toFixed(2)) : '0'}</td>
                     `;
                     tableBody.appendChild(row);
                 });
