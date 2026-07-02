@@ -1198,35 +1198,41 @@
               "notes": "Cơ quan cấp C/O, chữ ký, ngày cấp..."
             }`,
 
-            request_analyzer: `Bạn là trợ lý AI chuyên nghiệp phân tích tin nhắn/yêu cầu đặt hàng (booking request) của khách hàng gửi cho công ty logistics Việt - Trung.
-            Nhiệm vụ của bạn là đọc kỹ đoạn chat hoặc văn bản yêu cầu (hoặc ảnh chụp màn hình chat Zalo/WeChat) và phân tích thành cấu trúc dữ liệu lên đơn hàng.
-            Mô tả hàng hóa cần được dịch nghĩa rõ ràng sang tiếng Việt.
-
-            ⚠️ HƯỚNG DẪN ƯỚC LƯỢNG BÁO GIÁ DỰ KIẾN (Nếu trong tin nhắn không có báo giá sẵn):
-            Hãy căn cứ vào trọng lượng (weight_kg), thể tích (volume_cbm), mặt hàng và phương thức vận chuyển để tự ước lượng báo giá cước chính và phụ phí một cách chuyên nghiệp và hợp lý:
-            - Nếu đi Đường bộ (Lô nhỏ/Tiểu ngạch): Cước chính khoảng 4,000đ - 8,000đ/kg hoặc 2,500,000đ - 3,500,000đ/CBM (Khối). Hãy tính cước chính dựa trên tổng cân nặng hoặc thể tích (cái nào lớn hơn). Ví dụ: 400kg -> cước khoảng 2,400,000đ.
-            - Nếu đi Đường biển: Cước chính khoảng 1,500,000đ - 2,500,000đ/CBM.
-            - Phụ phí bốc xếp/nâng hạ: 200,000đ - 500,000đ.
-            - Phí thông quan/khai báo hải quan (nếu là chính ngạch): 1,500,000đ - 2,000,000đ.
-            - Phụ phí đóng gói gỗ (nếu khách ghi hàng dễ vỡ/máy móc/cần bảo quản): 150 - 300 RMB (~500,000đ - 1,000,000đ).
-            Hãy luôn ghi rõ đơn vị tiền tệ (đ hoặc VND, USD, CNY).
+            request_analyzer: `Bạn là trợ lý AI chuyên nghiệp phân tích tin nhắn/yêu cầu đặt hàng hoặc Bản báo giá nhập khẩu chính ngạch của FASTGO LOGISTICS.
+            Nhiệm vụ của bạn là trích xuất dữ liệu từ văn bản, đoạn chat hoặc file PDF và chuẩn hóa thành cấu trúc bảng tính báo giá chi tiết.
+            
+            ⚠️ LƯU Ý VỀ CÔNG THỨC VÀ CÁC LOẠI PHÍ (Nếu không có sẵn trong tài liệu, hãy tự tính toán hợp lý dựa trên giá trị hàng):
+            - Phí mua hàng: Mặc định bằng 2% của Giá trị hàng.
+            - Phí ủy thác: Mặc định bằng 500.000đ cho mỗi đơn hàng hoặc dòng hàng (nếu không ghi rõ).
+            - Thuế VAT: Mặc định bằng 8% của Giá xuất (Giá xuất = Giá trị hàng + Cước TQ + Cước VN + Phí ủy thác + Phí mua hàng).
+            - Thành tiền (sau VAT) = Giá xuất + VAT.
+            - Tiền cọc (70%) = 70% của Tổng thành tiền.
+            - Còn lại (30%) = 30% của Tổng thành tiền.
 
             Trả về cấu trúc JSON duy nhất:
             {
-              "customer_name": "Tên khách hàng hoặc tên tài khoản nhắn tin (nếu có, ví dụ: Anh Hùng, Chị Lan)",
-              "pickup_location": "Địa điểm lấy hàng / Kho nhận tại Trung Quốc (ví dụ: Quảng Châu, Thâm Quyến, Đông Quản...)",
-              "delivery_location": "Địa điểm giao hàng / Kho nhận tại Việt Nam (ví dụ: Hà Nội, TP.HCM, Hải Phòng...)",
-              "cargo_description": "Mô tả mặt hàng (Dịch nghĩa tiếng Việt rõ ràng, ví dụ: Quần áo trẻ em, Linh kiện máy tính...)",
-              "quantity": "Số lượng, quy cách đóng gói (ví dụ: 50 bao, 10 thùng, 4 cuộn)",
-              "weight_kg": "Trọng lượng ước tính/thực tế tính bằng kg (kiểu số hoặc chữ, ví dụ: 1200 hoặc '1.2 tấn')",
-              "volume_cbm": "Thể tích ước tính/thực tế tính bằng CBM (kiểu số hoặc chữ, ví dụ: 3.5 hoặc '3 khối')",
-              "shipping_method": "Phương thức vận chuyển đề xuất (Đường bộ, Đường biển, Chính ngạch, Tiểu ngạch...)",
-              "delivery_deadline": "Hạn giao hàng hoặc yêu cầu thời gian (ví dụ: Giao trước thứ 5 tuần sau, Giao gấp...)",
-              "freight_quote": "Báo giá cước chính vận chuyển dự kiến (ví dụ: '2,400,000đ' hoặc '450 USD')",
-              "other_fees": "Các phụ phí khác như thông quan, nâng hạ, đóng gỗ dự kiến (ví dụ: 'Phí nâng hạ: 200,000đ, Phí đóng gỗ: 600,000đ')",
-              "total_cost": "Tổng chi phí dự kiến tạm tính (ví dụ: '3,200,000đ')",
-              "quote_details": "Tóm tắt điều khoản/lưu ý báo giá (ví dụ: Giá chưa gồm VAT, tính theo cân thực tế tại kho, miễn phí bốc xếp tại kho...)",
-              "notes": "Các ghi chú đặc biệt khác như: yêu cầu đóng gỗ, đóng pallet, báo giá trước khi đi, thanh toán đầu nhận..."
+              "customer_name": "Tên công ty hoặc khách hàng (ví dụ: Công Ty TNHH SX TM MINH HƯNG SÀI GÒN)",
+              "tax_id": "Mã số thuế của công ty khách hàng (ví dụ: 0319363128)",
+              "address": "Địa chỉ khách hàng (ví dụ: 12/14/1A Đường Số 49, Hiệp Bình, Hồ Chí Minh)",
+              "bank_info": "Thông tin tài khoản ngân hàng thụ hưởng (ví dụ: STK: 971555 - Techcombank)",
+              "items": [
+                {
+                  "name": "Tên sản phẩm (ví dụ: Cáp audio Mini Din 9 chân)",
+                  "quantity": "Số lượng kèm đơn vị (ví dụ: 300 dây, 120 cái)",
+                  "value": giá trị hàng bằng VND (kiểu số, ví dụ: 34300000),
+                  "shipping_cn": cước vận chuyển Trung Quốc bằng VND (kiểu số, ví dụ: 605000),
+                  "shipping_vn": cước vận chuyển Việt Nam bằng VND (kiểu số, ví dụ: 300000),
+                  "entrustment_fee": phí ủy thác bằng VND (kiểu số, ví dụ: 500000),
+                  "service_fee": phí mua hàng bằng VND (kiểu số, ví dụ: 686000),
+                  "total_before_vat": giá xuất trước VAT bằng VND (kiểu số, ví dụ: 36391000),
+                  "vat": thuế VAT 8% bằng VND (kiểu số, ví dụ: 2911280),
+                  "total_with_vat": thành tiền sau VAT bằng VND (kiểu số, ví dụ: 39302280)
+                }
+              ],
+              "grand_total": tổng số tiền thanh toán của các dòng hàng sau VAT (kiểu số, ví dụ: 42358680),
+              "deposit_70": số tiền đặt cọc 70% (kiểu số, ví dụ: 29651076),
+              "balance_30": số tiền thanh toán còn lại 30% (kiểu số, ví dụ: 12707604),
+              "notes": "Các lưu ý đặc biệt, chính sách hoặc hạn giao hàng..."
             }`
         };
 
@@ -2222,11 +2228,38 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
         function handleCellEdit(e) {
             const field = e.target.getAttribute('data-field');
             const idx = parseInt(e.target.getAttribute('data-index'));
+            const key = e.target.getAttribute('data-key');
             let value = e.target.textContent.trim();
 
             if (activeDocType === 'request_analyzer') {
-                currentExtractedData[field] = value;
-                generateConfirmationMessage();
+                if (key) {
+                    currentExtractedData[key] = value;
+                    generateConfirmationMessage();
+                } else if (field && !isNaN(idx) && currentExtractedData.items && currentExtractedData.items[idx]) {
+                    const item = currentExtractedData.items[idx];
+                    
+                    if (field === 'value' || field === 'shipping_cn' || field === 'shipping_vn' || field === 'entrustment_fee') {
+                        const numericVal = parseFloat(value.replace(/[^0-9.-]+/g,"")) || 0;
+                        item[field] = numericVal;
+                        
+                        item.service_fee = Math.round(0.02 * item.value);
+                        item.total_before_vat = item.value + item.shipping_cn + item.shipping_vn + item.entrustment_fee + item.service_fee;
+                        item.vat = Math.round(0.08 * item.total_before_vat);
+                        item.total_with_vat = item.total_before_vat + item.vat;
+                    } else {
+                        item[field] = value;
+                    }
+                    
+                    let sumTotal = 0;
+                    currentExtractedData.items.forEach(it => {
+                        sumTotal += it.total_with_vat || 0;
+                    });
+                    currentExtractedData.grand_total = sumTotal;
+                    currentExtractedData.deposit_70 = Math.round(0.7 * sumTotal);
+                    currentExtractedData.balance_30 = Math.round(0.3 * sumTotal);
+                    
+                    renderRequestAnalyzerLayout();
+                }
                 jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
                 return;
             }
@@ -2426,9 +2459,11 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
                 currentExtractedData.items.forEach(item => {
                     tsvContent += `${item.item_no}\t${item.description}\t${item.hs_code}\t${item.origin_criterion}\t${item.invoice_info}\n`;
                 });
-            } else if (activeDocType === 'request_analyzer') {
-                tsvContent = "Quy cách / Số lượng\tTrọng lượng (GW)\tThể tích (CBM)\n";
-                tsvContent += `${currentExtractedData.quantity || 'N/A'}\t${currentExtractedData.weight_kg || '0'}\t${currentExtractedData.volume_cbm || '0'}\n`;
+            } else if (activeDocType === 'request_analyzer' && currentExtractedData.items) {
+                tsvContent = "STT\tTên mặt hàng\tSố lượng\tGiá trị hàng (VND)\tCước TQ (VND)\tCước VN (VND)\tỦy thác (VND)\tPhí dịch vụ (2%)\tVAT (8%)\tThành tiền (VND)\n";
+                currentExtractedData.items.forEach((item, index) => {
+                    tsvContent += `${index + 1}\t${item.name || ''}\t${item.quantity || ''}\t${item.value || 0}\t${item.shipping_cn || 0}\t${item.shipping_vn || 0}\t${item.entrustment_fee || 0}\t${item.service_fee || 0}\t${item.vat || 0}\t${item.total_with_vat || 0}\n`;
+                });
             }
 
             navigator.clipboard.writeText(tsvContent).then(() => {
@@ -2499,21 +2534,26 @@ Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
                 csvContent += `Nước nhập khẩu,,${currentExtractedData.country_destination || ''}\n`;
             }
             else if (activeDocType === 'request_analyzer') {
-                csvContent += "Mục,Giá trị trích xuất\n";
+                csvContent += "Thông tin báo giá nhập khẩu chính ngạch FastGo\n";
                 csvContent += `Khách hàng,"${(currentExtractedData.customer_name || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Kho nhận TQ,"${(currentExtractedData.pickup_location || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Kho giao VN,"${(currentExtractedData.delivery_location || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Phương thức vận chuyển,"${(currentExtractedData.shipping_method || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Mô tả hàng hóa,"${(currentExtractedData.cargo_description || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Quy cách đóng gói,"${(currentExtractedData.quantity || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Trọng lượng (kg),"${(currentExtractedData.weight_kg || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Thể tích (CBM),"${(currentExtractedData.volume_cbm || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Hạn giao hàng,"${(currentExtractedData.delivery_deadline || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Cước chính dự kiến,"${(currentExtractedData.freight_quote || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Phụ phí dự kiến,"${(currentExtractedData.other_fees || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Tổng chi phí dự kiến,"${(currentExtractedData.total_cost || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Chi tiết báo giá,"${(currentExtractedData.quote_details || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Ghi chú,"${(currentExtractedData.notes || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Mã số thuế,"${(currentExtractedData.tax_id || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Địa chỉ,"${(currentExtractedData.address || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Tài khoản nhận,"${(currentExtractedData.bank_info || '').replace(/"/g, '""')}"\n\n`;
+                
+                csvContent += "STT,Tên mặt hàng,Số lượng,Giá trị hàng (VND),Cước TQ (VND),Cước VN (VND),Ủy thác (VND),Phí dịch vụ 2%,VAT 8%,Thành tiền (VND)\n";
+                if (currentExtractedData.items) {
+                    currentExtractedData.items.forEach((item, index) => {
+                        csvContent += `${index + 1},"${(item.name || '').replace(/"/g, '""')}"` +
+                                      `,"${(item.quantity || '').replace(/"/g, '""')}"` +
+                                      `,${item.value || 0},${item.shipping_cn || 0},${item.shipping_vn || 0}` +
+                                      `,${item.entrustment_fee || 0},${item.service_fee || 0},${item.vat || 0},${item.total_with_vat || 0}\n`;
+                    });
+                }
+                
+                csvContent += `\nTổng cộng thanh toán (VND),,${currentExtractedData.grand_total || 0}\n`;
+                csvContent += `Đợt 1: Đặt cọc 70% (VND),,${currentExtractedData.deposit_70 || 0}\n`;
+                csvContent += `Đợt 2: Thanh toán nốt 30% (VND),,${currentExtractedData.balance_30 || 0}\n`;
+                csvContent += `Lưu ý,,${(currentExtractedData.notes || '').replace(/"/g, '""')}\n`;
             }
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
