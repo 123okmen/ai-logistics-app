@@ -889,7 +889,19 @@
                     <h2>Cấu hình đầu vào</h2>
                 </div>
                 <div class="input-group">
-                    <label class="input-label" for="api-key-input">OpenAI API Key:</label>
+                    <label class="input-label" for="provider-select">Dịch vụ AI:</label>
+                    <select id="provider-select" class="input-field" style="cursor: pointer;">
+                        <option value="openai">OpenAI (gpt-4o-mini)</option>
+                        <option value="gemini">Google Gemini (Miễn phí - gemini-1.5-flash)</option>
+                        <option value="groq">Groq Cloud (Miễn phí - Llama 3.2 Vision)</option>
+                        <option value="custom">Custom Endpoint (Tự định nghĩa)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="api-key-input">
+                        <span id="key-label-text">API Key:</span>
+                        <a href="https://platform.openai.com/" id="key-link" target="_blank" style="font-size: 0.75rem; color: var(--accent-secondary); text-decoration: none; font-weight: 600;">Lấy Key</a>
+                    </label>
                     <input type="password" id="api-key-input" class="input-field" placeholder="sk-proj-...">
                 </div>
                 <div class="input-group">
@@ -899,9 +911,13 @@
                     </label>
                     <input type="number" id="exchange-rate-input" class="input-field" value="3500">
                 </div>
-                <div class="input-group">
-                    <label class="input-label" for="custom-endpoint">Custom API Endpoint (Tùy chọn):</label>
+                <div class="input-group" id="endpoint-group" style="display: none;">
+                    <label class="input-label" for="custom-endpoint">API Endpoint:</label>
                     <input type="text" id="custom-endpoint" class="input-field" placeholder="https://api.openai.com" value="https://api.openai.com">
+                </div>
+                <div class="input-group" id="model-group" style="display: none;">
+                    <label class="input-label" for="custom-model">Model Name:</label>
+                    <input type="text" id="custom-model" class="input-field" placeholder="gpt-4o-mini" value="gpt-4o-mini">
                 </div>
             </div>
 
@@ -1223,6 +1239,45 @@
         const previewImage = document.getElementById('preview-image');
         const btnClearFile = document.getElementById('btn-clear-file');
         
+        // AI Provider configuration elements
+        const providerSelect = document.getElementById('provider-select');
+        const customModelInput = document.getElementById('custom-model');
+        const endpointGroup = document.getElementById('endpoint-group');
+        const modelGroup = document.getElementById('model-group');
+        const keyLabelText = document.getElementById('key-label-text');
+        const keyLink = document.getElementById('key-link');
+
+        const providersConfig = {
+            openai: {
+                endpoint: 'https://api.openai.com',
+                model: 'gpt-4o-mini',
+                keyLabel: 'OpenAI API Key:',
+                keyLink: 'https://platform.openai.com/',
+                placeholder: 'sk-proj-...'
+            },
+            gemini: {
+                endpoint: 'https://generativelanguage.googleapis.com/v1beta/openai',
+                model: 'gemini-1.5-flash',
+                keyLabel: 'Gemini API Key:',
+                keyLink: 'https://aistudio.google.com/',
+                placeholder: 'AIzaSy...'
+            },
+            groq: {
+                endpoint: 'https://api.groq.com/openai',
+                model: 'llama-3.2-11b-vision-preview',
+                keyLabel: 'Groq API Key:',
+                keyLink: 'https://console.groq.com/',
+                placeholder: 'gsk_...'
+            },
+            custom: {
+                endpoint: 'https://api.openai.com',
+                model: 'gpt-4o-mini',
+                keyLabel: 'Custom API Key:',
+                keyLink: '',
+                placeholder: 'Nhập API key của bạn...'
+            }
+        };
+        
         // Views
         const emptyView = document.getElementById('empty-view');
         const loadingView = document.getElementById('loading-view');
@@ -1266,15 +1321,19 @@
 
         // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
-            // Load credentials
-            const savedApiKey = localStorage.getItem('openai_api_key');
+            // Load credentials and provider
+            const savedProvider = localStorage.getItem('api_provider') || 'openai';
+            providerSelect.value = savedProvider;
+            
+            const savedApiKey = localStorage.getItem(`api_key_${savedProvider}`) || localStorage.getItem('openai_api_key');
             if (savedApiKey) {
                 apiKeyInput.value = savedApiKey;
-            } else {
+            } else if (savedProvider === 'openai') {
                 const b64Key = 'c2stcHJvai1hZzZDVEZmYzRFYkR6MHhHY1F1OElnN2lYeUhzUEtBdWdGZ2c0TXdscllkeHlCdU5CS25GdnlwTzBQSmNMTm0weDZmZ192S0UwTFQzQmxia0ZKUlFOSlFUS3ZFbllzcHlxSFB1T3JQYWQzTTlka1lsNk43Wms2cXAxQ3RKaDQzWTZRZUdOckdOMlh2YzV1bnE4WExrWDNPSDBnb0E=';
                 const defaultKey = atob(b64Key);
                 apiKeyInput.value = defaultKey;
                 localStorage.setItem('openai_api_key', defaultKey);
+                localStorage.setItem('api_key_openai', defaultKey);
             }
             
             const savedRate = localStorage.getItem('exchange_rate');
@@ -1283,8 +1342,11 @@
                 updateRateDisplay(savedRate);
             }
 
-            const savedEndpoint = localStorage.getItem('api_endpoint');
-            if (savedEndpoint) customEndpointInput.value = savedEndpoint;
+            const savedEndpoint = localStorage.getItem('api_endpoint') || 'https://api.openai.com';
+            customEndpointInput.value = savedEndpoint;
+
+            const savedModel = localStorage.getItem('api_model') || 'gpt-4o-mini';
+            customModelInput.value = savedModel;
 
             const savedHistory = localStorage.getItem('scan_history');
             if (savedHistory) {
@@ -1292,9 +1354,50 @@
                 renderHistoryList();
             }
 
+            // Apply configuration
+            applyProviderConfig(savedProvider);
+
             lucide.createIcons();
             setupEventListeners();
         });
+
+        function applyProviderConfig(provider) {
+            const config = providersConfig[provider] || providersConfig.openai;
+            
+            if (provider === 'custom') {
+                endpointGroup.style.display = 'block';
+                modelGroup.style.display = 'block';
+                customEndpointInput.value = localStorage.getItem('api_endpoint') || 'https://api.openai.com';
+                customModelInput.value = localStorage.getItem('api_model') || 'gpt-4o-mini';
+            } else {
+                endpointGroup.style.display = 'none';
+                modelGroup.style.display = 'none';
+                customEndpointInput.value = config.endpoint;
+                customModelInput.value = config.model;
+            }
+            
+            keyLabelText.textContent = config.keyLabel;
+            if (config.keyLink) {
+                keyLink.href = config.keyLink;
+                keyLink.style.display = 'inline';
+            } else {
+                keyLink.style.display = 'none';
+            }
+            
+            apiKeyInput.placeholder = config.placeholder;
+            
+            const cachedKey = localStorage.getItem(`api_key_${provider}`);
+            if (cachedKey) {
+                apiKeyInput.value = cachedKey;
+            } else {
+                if (provider === 'openai') {
+                    const b64Key = 'c2stcHJvai1hZzZDVEZmYzRFYkR6MHhHY1F1OElnN2lYeUhzUEtBdWdGZ2c0TXdscllkeHlCdU5CS25GdnlwTzBQSmNMTm0weDZmZ192S0UwTFQzQmxia0ZKUlFOSlFUS3ZFbllzcHlxSFB1T3JQYWQzTTlka1lsNk43Wms2cXAxQ3RKaDQzWTZRZUdOckdOMlh2YzV1bnE4WExrWDNPSDBnb0E=';
+                    apiKeyInput.value = atob(b64Key);
+                } else {
+                    apiKeyInput.value = '';
+                }
+            }
+        }
 
         function updateRateDisplay(val) {
             rateDisplay.textContent = new Intl.NumberFormat('vi-VN').format(val) + 'đ';
@@ -1327,9 +1430,19 @@
                 });
             });
 
+            // Provider select change handler
+            providerSelect.addEventListener('change', (e) => {
+                const provider = e.target.value;
+                localStorage.setItem('api_provider', provider);
+                applyProviderConfig(provider);
+            });
+
             // Settings input handlers
             apiKeyInput.addEventListener('input', (e) => {
-                localStorage.setItem('openai_api_key', e.target.value.trim());
+                const key = e.target.value.trim();
+                const provider = providerSelect.value;
+                localStorage.setItem(`api_key_${provider}`, key);
+                localStorage.setItem('openai_api_key', key);
             });
 
             exchangeRateInput.addEventListener('input', (e) => {
@@ -1348,7 +1461,13 @@
             });
 
             customEndpointInput.addEventListener('input', (e) => {
-                localStorage.setItem('api_endpoint', e.target.value.trim());
+                const endpoint = e.target.value.trim();
+                localStorage.setItem('api_endpoint', endpoint);
+            });
+
+            customModelInput.addEventListener('input', (e) => {
+                const model = e.target.value.trim();
+                localStorage.setItem('api_model', model);
             });
 
             btnOpenApiModal.addEventListener('click', () => {
@@ -1535,6 +1654,7 @@
             setStepStatus(step4, 'pending');
 
             const apiEndpoint = customEndpointInput.value.trim() || 'https://api.openai.com';
+            const modelName = customModelInput.value.trim() || 'gpt-4o-mini';
 
             try {
                 setStepStatus(step2, 'completed');
@@ -1547,7 +1667,7 @@
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'gpt-4o-mini',
+                        model: modelName,
                         response_format: { type: 'json_object' },
                         temperature: 0.1,
                         messages: [
