@@ -2514,23 +2514,23 @@ FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
             if (activeDocType === 'invoice' && currentExtractedData.items) {
                 csvContent += "STT,Tên hàng gốc,Tên dịch tiếng Việt,Số lượng,Đơn giá,Thành tiền\n";
                 currentExtractedData.items.forEach((item, index) => {
-                    csvContent += `${index + 1},"${item.original_name.replace(/"/g, '""')}"` +
-                                  `,"${item.translated_name.replace(/"/g, '""')}"` +
-                                  `,"${item.quantity.replace(/"/g, '""')}",${item.price},${item.total}\n`;
+                    csvContent += `${index + 1},"${(item.original_name || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.translated_name || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.quantity || '').toString().replace(/"/g, '""')}",${item.price || 0},${item.total || 0}\n`;
                 });
-                csvContent += `\nTổng cộng (CNY),,${currentExtractedData.total_amount}\n`;
+                csvContent += `\nTổng cộng (CNY),,${currentExtractedData.total_amount || 0}\n`;
                 csvContent += `Ngày hóa đơn,,${currentExtractedData.date || ''}\n`;
                 csvContent += `Số hóa đơn,,${currentExtractedData.invoice_number || ''}\n`;
             } 
             else if (activeDocType === 'packing_list' && currentExtractedData.items) {
                 csvContent += "Mã kiện,Mô tả đóng gói dịch Việt,Số lượng,TL Tịnh NW (kg),TL Thô GW (kg),Thể tích/Kích thước\n";
                 currentExtractedData.items.forEach(item => {
-                    csvContent += `"${item.package_no.replace(/"/g, '""')}"` +
-                                  `,"${item.description.replace(/"/g, '""')}"` +
-                                  `,"${item.quantity.replace(/"/g, '""')}"` +
-                                  `,"${item.net_weight.replace(/"/g, '""')}"` +
-                                  `,"${item.gross_weight.replace(/"/g, '""')}"` +
-                                  `,"${item.dimensions.replace(/"/g, '""')}"\n`;
+                    csvContent += `"${(item.package_no || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.description || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.quantity || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.net_weight || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.gross_weight || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.dimensions || '').toString().replace(/"/g, '""')}"\n`;
                 });
                 csvContent += `\nTổng số kiện,,${currentExtractedData.total_packages || ''}\n`;
                 csvContent += `Tổng trọng lượng Gross,,${currentExtractedData.total_gross_weight || ''}\n`;
@@ -2539,11 +2539,11 @@ FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
             else if (activeDocType === 'bill_of_lading' && currentExtractedData.items) {
                 csvContent += "Số Cont/Seal,Mô tả hàng hóa vận đơn,Số lượng kiện,Trọng lượng GW,Thể tích CBM\n";
                 currentExtractedData.items.forEach(item => {
-                    csvContent += `"${item.container_seal.replace(/"/g, '""')}"` +
-                                  `,"${item.description.replace(/"/g, '""')}"` +
-                                  `,"${item.quantity.replace(/"/g, '""')}"` +
-                                  `,"${item.weight.replace(/"/g, '""')}"` +
-                                  `,"${(item.volume || '').replace(/"/g, '""')}"\n`;
+                    csvContent += `"${(item.container_seal || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.description || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.quantity || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.weight || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.volume || '').toString().replace(/"/g, '""')}"\n`;
                 });
                 csvContent += `\nSố vận đơn B/L No,,${currentExtractedData.bl_number || ''}\n`;
                 csvContent += `Hãng tàu,,${currentExtractedData.carrier || ''}\n`;
@@ -2555,10 +2555,10 @@ FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
                 csvContent += "Mục,Mô tả hàng hóa,Mã HS Code,Tiêu chí xuất xứ,Hóa đơn đính kèm\n";
                 currentExtractedData.items.forEach(item => {
                     csvContent += `"${(item.item_no || '').toString().replace(/"/g, '""')}"` +
-                                  `,"${item.description.replace(/"/g, '""')}"` +
-                                  `,"${item.hs_code.replace(/"/g, '""')}"` +
-                                  `,"${item.origin_criterion.replace(/"/g, '""')}"` +
-                                  `,"${item.invoice_info.replace(/"/g, '""')}"\n`;
+                                  `,"${(item.description || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.hs_code || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.origin_criterion || '').toString().replace(/"/g, '""')}"` +
+                                  `,"${(item.invoice_info || '').toString().replace(/"/g, '""')}"\n`;
                 });
                 csvContent += `\nSố C/O Reference No,,${currentExtractedData.co_number || ''}\n`;
                 csvContent += `Loại Form,,${currentExtractedData.co_form || ''}\n`;
@@ -2567,16 +2567,16 @@ FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
             }
             else if (activeDocType === 'request_analyzer') {
                 csvContent += "Thông tin báo giá nhập khẩu chính ngạch FastGo\n";
-                csvContent += `Khách hàng,"${(currentExtractedData.customer_name || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Mã số thuế,"${(currentExtractedData.tax_id || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Địa chỉ,"${(currentExtractedData.address || '').replace(/"/g, '""')}"\n`;
-                csvContent += `Tài khoản nhận,"${(currentExtractedData.bank_info || '').replace(/"/g, '""')}"\n\n`;
+                csvContent += `Khách hàng,"${(currentExtractedData.customer_name || '').toString().replace(/"/g, '""')}"\n`;
+                csvContent += `Mã số thuế,"${(currentExtractedData.tax_id || '').toString().replace(/"/g, '""')}"\n`;
+                csvContent += `Địa chỉ,"${(currentExtractedData.address || '').toString().replace(/"/g, '""')}"\n`;
+                csvContent += `Tài khoản nhận,"${(currentExtractedData.bank_info || '').toString().replace(/"/g, '""')}"\n\n`;
                 
                 csvContent += "STT,Tên mặt hàng,Số lượng,Giá trị hàng (VND),Cước TQ (VND),Cước VN (VND),Ủy thác (VND),Phí dịch vụ 2%,VAT 8%,Thành tiền (VND)\n";
                 if (currentExtractedData.items) {
                     currentExtractedData.items.forEach((item, index) => {
-                        csvContent += `${index + 1},"${(item.name || '').replace(/"/g, '""')}"` +
-                                      `,"${(item.quantity || '').replace(/"/g, '""')}"` +
+                        csvContent += `${index + 1},"${(item.name || '').toString().replace(/"/g, '""')}"` +
+                                      `,"${(item.quantity || '').toString().replace(/"/g, '""')}"` +
                                       `,${item.value || 0},${item.shipping_cn || 0},${item.shipping_vn || 0}` +
                                       `,${item.entrustment_fee || 0},${item.service_fee || 0},${item.vat || 0},${item.total_with_vat || 0}\n`;
                     });
@@ -2585,7 +2585,7 @@ FASTGO LOGISTICS xin chân thành cảm ơn quý khách!`;
                 csvContent += `\nTổng cộng thanh toán (VND),,${currentExtractedData.grand_total || 0}\n`;
                 csvContent += `Đợt 1: Đặt cọc 70% (VND),,${currentExtractedData.deposit_70 || 0}\n`;
                 csvContent += `Đợt 2: Thanh toán nốt 30% (VND),,${currentExtractedData.balance_30 || 0}\n`;
-                csvContent += `Lưu ý,,${(currentExtractedData.notes || '').replace(/"/g, '""')}\n`;
+                csvContent += `Lưu ý,,${(currentExtractedData.notes || '').toString().replace(/"/g, '""')}\n`;
             }
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
