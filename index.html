@@ -1828,12 +1828,7 @@
                 if (isGemini) {
                     responseData = await callGeminiNative(apiKey, modelName, activeDocType, userContent);
                 } else {
-                    let fetchUrl = `${apiEndpoint}/v1/chat/completions`;
-                    
-                    // Solve client-side browser CORS blocking by routing direct requests through corsproxy.io
-                    if (providerSelect.value !== 'custom' && (fetchUrl.includes('api.groq.com') || fetchUrl.includes('api.openai.com'))) {
-                        fetchUrl = `https://corsproxy.io/?url=${encodeURIComponent(fetchUrl)}`;
-                    }
+                    const fetchUrl = `${apiEndpoint}/v1/chat/completions`;
 
                     const response = await fetch(fetchUrl, {
                         method: 'POST',
@@ -1859,8 +1854,13 @@
                     });
 
                     if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+                        const errText = await response.text();
+                        let errMsg = `HTTP ${response.status}`;
+                        try {
+                            const errJson = JSON.parse(errText);
+                            errMsg = errJson.error?.message || errMsg;
+                        } catch(e) {}
+                        throw new Error(errMsg);
                     }
 
                     responseData = await response.json();
