@@ -345,7 +345,7 @@
         /* Document Selector Style */
         .doc-selector-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 0.75rem;
         }
 
@@ -717,6 +717,7 @@
         .badge-packing_list { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-secondary); }
         .badge-bill_of_lading { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
         .badge-co { background-color: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+        .badge-request_analyzer { background-color: rgba(236, 72, 153, 0.15); color: #ec4899; }
 
         .history-meta {
             font-size: 0.75rem;
@@ -795,6 +796,51 @@
             color: #ffffff;
         }
 
+        /* Custom Booking confirmation styling */
+        .booking-confirm-area {
+            background-color: rgba(236, 72, 153, 0.03);
+            border: 1px solid rgba(236, 72, 153, 0.15);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .booking-confirm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-confirm-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ec4899;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .booking-confirm-text {
+            background-color: #090d16;
+            color: #f1f5f9;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            width: 100%;
+            outline: none;
+            resize: none;
+        }
+
+        .booking-confirm-text:focus {
+            border-color: #ec4899;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             main {
@@ -825,7 +871,7 @@
         </div>
         <div class="header-actions">
             <button class="btn btn-sm" id="btn-open-api-modal">
-                <i data-lucide="key"></i> Cấu hình API
+                <i data-lucide="key"></i> Cài đặt API
             </button>
             <button class="btn btn-primary" id="btn-process-doc" disabled>
                 <i data-lucide="cpu"></i> Bắt đầu phân tích
@@ -862,15 +908,24 @@
             <!-- Upload Card -->
             <div class="card">
                 <div class="card-header">
-                    <i data-lucide="file-image"></i>
-                    <h2>Tải chứng từ lên</h2>
+                    <i data-lucide="file-image" id="upload-card-icon"></i>
+                    <h2 id="upload-card-title">Tải chứng từ lên</h2>
                 </div>
+                
+                <!-- Paste Chat Text Area (shown for request_analyzer) -->
+                <div class="input-group" id="chat-paste-area" style="display: none; margin-bottom: 1rem;">
+                    <label class="input-label" for="chat-text-input">Nhập hoặc dán nội dung chat yêu cầu:</label>
+                    <textarea id="chat-text-input" class="input-field" rows="8" placeholder="Ví dụ: Anh cần chuyển 50 bao quần áo trẻ em từ Quảng Châu về kho Hà Nội. Nặng tầm 1.2 tấn, khoảng 3 khối. Báo giá anh đi..." style="resize: vertical; font-family: inherit; font-size: 0.85rem; line-height: 1.4;"></textarea>
+                </div>
+
+                <!-- Image upload area -->
                 <div class="upload-area" id="drop-zone">
                     <i data-lucide="upload-cloud"></i>
                     <p class="upload-text">Kéo thả ảnh chứng từ vào đây hoặc <span>chọn file</span></p>
                     <p class="upload-hint">PNG, JPG, JPEG, WEBP</p>
                     <input type="file" id="file-input" accept="image/*" style="display: none;">
                 </div>
+                
                 <div class="preview-container" id="preview-box">
                     <img src="" alt="Preview" class="preview-img" id="preview-image">
                     <button class="btn-remove-preview" id="btn-clear-file" title="Xóa ảnh">
@@ -887,22 +942,27 @@
                 <div class="doc-type-card active" data-type="invoice">
                     <div class="doc-type-icon"><i data-lucide="file-text"></i></div>
                     <span class="doc-type-title">Hóa đơn (Invoice)</span>
-                    <span class="doc-type-desc">Trích xuất chi tiết hàng, đơn giá, tổng tiền và dịch thuật.</span>
+                    <span class="doc-type-desc">Dịch & trích xuất mặt hàng, đơn giá, tổng tiền.</span>
                 </div>
                 <div class="doc-type-card" data-type="packing_list">
                     <div class="doc-type-icon"><i data-lucide="package"></i></div>
                     <span class="doc-type-title">Phiếu đóng gói (P/L)</span>
-                    <span class="doc-type-desc">Thống kê số kiện, trọng lượng tịnh, trọng lượng thô, thể tích.</span>
+                    <span class="doc-type-desc">Thống kê số kiện, trọng lượng NW/GW, thể tích CBM.</span>
                 </div>
                 <div class="doc-type-card" data-type="bill_of_lading">
                     <div class="doc-type-icon"><i data-lucide="ship"></i></div>
                     <span class="doc-type-title">Vận đơn (B/L / AWB)</span>
-                    <span class="doc-type-desc">Thông tin người gửi/nhận, tên tàu/chuyến bay, số container/chì.</span>
+                    <span class="doc-type-desc">Thông tin cảng bốc/dỡ, số Container, Seal tàu.</span>
                 </div>
                 <div class="doc-type-card" data-type="co">
                     <div class="doc-type-icon"><i data-lucide="award"></i></div>
                     <span class="doc-type-title">Xuất xứ (C/O)</span>
-                    <span class="doc-type-desc">Xác minh Form C/O, tiêu chí xuất xứ, mã HS và nhà xuất khẩu.</span>
+                    <span class="doc-type-desc">Xác minh nguồn gốc hàng hóa, tiêu chí xuất xứ, mã HS.</span>
+                </div>
+                <div class="doc-type-card" data-type="request_analyzer">
+                    <div class="doc-type-icon" style="background-color: rgba(236, 72, 153, 0.05); color: #ec4899;"><i data-lucide="message-square-plus"></i></div>
+                    <span class="doc-type-title" style="color: #ec4899;">Lên đơn (Booking)</span>
+                    <span class="doc-type-desc">Đọc tin nhắn chat Zalo/WeChat hoặc ảnh chụp để tự tạo phiếu đơn.</span>
                 </div>
             </div>
 
@@ -925,7 +985,7 @@
                 <div class="empty-state" id="empty-view">
                     <i data-lucide="scan-face"></i>
                     <h3>Chưa có dữ liệu phân tích</h3>
-                    <p>Hãy chọn loại chứng từ tương ứng phía trên, tải ảnh lên ở bên trái và bấm nút "Bắt đầu phân tích".</p>
+                    <p>Hãy chọn loại chứng từ tương ứng phía trên, tải ảnh/nhập tin nhắn ở bên trái và bấm nút "Bắt đầu phân tích".</p>
                 </div>
 
                 <!-- Loading State -->
@@ -934,16 +994,16 @@
                     <h3 style="font-family: var(--font-display);" id="loading-title">AI đang đọc dữ liệu...</h3>
                     <div class="loading-timeline">
                         <div class="timeline-step" id="step-1">
-                            <i data-lucide="check-circle-2"></i> Đọc và nén file hình ảnh
+                            <i data-lucide="check-circle-2"></i> Đọc và kiểm tra dữ liệu đầu vào
                         </div>
                         <div class="timeline-step" id="step-2">
                             <i data-lucide="loader"></i> Kết nối máy chủ AI & Gửi dữ liệu
                         </div>
                         <div class="timeline-step" id="step-3">
-                            <i data-lucide="circle"></i> Đang biên dịch & trích xuất JSON cấu trúc
+                            <i data-lucide="circle"></i> Đang biên dịch & phân tích cấu trúc dữ liệu
                         </div>
                         <div class="timeline-step" id="step-4">
-                            <i data-lucide="circle"></i> Đang hoàn thiện bảng hiển thị
+                            <i data-lucide="circle"></i> Đang hoàn thiện giao diện kết quả
                         </div>
                     </div>
                 </div>
@@ -961,10 +1021,21 @@
                         <!-- Filled by JS -->
                     </div>
 
+                    <!-- Booking Confirmation Box (Only shown for request_analyzer) -->
+                    <div class="booking-confirm-area" id="booking-confirm-box" style="display: none;">
+                        <div class="booking-confirm-header">
+                            <span class="booking-confirm-title"><i data-lucide="message-square"></i> Mẫu tin nhắn xác nhận lại với khách hàng</span>
+                            <button class="btn btn-sm" id="btn-copy-confirm" style="border-color: #ec4899; color: #ec4899;">
+                                <i data-lucide="copy"></i> Sao chép tin nhắn
+                            </button>
+                        </div>
+                        <textarea class="booking-confirm-text" id="val-confirm-text" rows="8"></textarea>
+                    </div>
+
                     <!-- Dynamic Table Container -->
                     <div class="table-container" id="dynamic-table-container">
                         <div class="table-header-row">
-                            <span class="table-header-title" id="table-title">Chi tiết mặt hàng (Nhấp đúp ô để chỉnh sửa)</span>
+                            <span class="table-header-title" id="table-title">Chi tiết hàng hóa</span>
                             <div class="table-actions">
                                 <button class="btn btn-sm" id="btn-copy-table">
                                     <i data-lucide="copy"></i> Sao chép bảng
@@ -1114,6 +1185,23 @@
                 }
               ],
               "notes": "Cơ quan cấp C/O, chữ ký, ngày cấp..."
+            }`,
+
+            request_analyzer: `Bạn là trợ lý AI chuyên nghiệp phân tích tin nhắn/yêu cầu đặt hàng (booking request) của khách hàng gửi cho công ty logistics Việt - Trung.
+            Nhiệm vụ của bạn là đọc kỹ đoạn chat hoặc văn bản yêu cầu (hoặc ảnh chụp màn hình chat Zalo/WeChat) và phân tích thành cấu trúc dữ liệu lên đơn hàng.
+            Mô tả hàng hóa cần được dịch nghĩa rõ ràng sang tiếng Việt.
+            Trả về cấu trúc JSON duy nhất:
+            {
+              "customer_name": "Tên khách hàng hoặc tên tài khoản nhắn tin (nếu có, ví dụ: Anh Hùng, Chị Lan)",
+              "pickup_location": "Địa điểm lấy hàng / Kho nhận tại Trung Quốc (ví dụ: Quảng Châu, Thâm Quyến, Đông Quản...)",
+              "delivery_location": "Địa điểm giao hàng / Kho nhận tại Việt Nam (ví dụ: Hà Nội, TP.HCM, Hải Phòng...)",
+              "cargo_description": "Mô tả mặt hàng (Dịch nghĩa tiếng Việt rõ ràng, ví dụ: Quần áo trẻ em, Linh kiện máy tính...)",
+              "quantity": "Số lượng, quy cách đóng gói (ví dụ: 50 bao, 10 thùng, 4 cuộn)",
+              "weight_kg": "Trọng lượng ước tính/thực tế tính bằng kg (kiểu số hoặc chữ, ví dụ: 1200 hoặc '1.2 tấn')",
+              "volume_cbm": "Thể tích ước tính/thực tế tính bằng CBM (kiểu số hoặc chữ, ví dụ: 3.5 hoặc '3 khối')",
+              "shipping_method": "Phương thức vận chuyển đề xuất (Đường bộ, Đường biển, Chính ngạch, Tiểu ngạch...)",
+              "delivery_deadline": "Hạn giao hàng hoặc yêu cầu thời gian (ví dụ: Giao trước thứ 5 tuần sau, Giao gấp...)",
+              "notes": "Các ghi chú đặc biệt khác như: yêu cầu đóng gỗ, đóng pallet, báo giá trước khi đi, thanh toán đầu nhận..."
             }`
         };
 
@@ -1147,15 +1235,27 @@
         const step3 = document.getElementById('step-3');
         const step4 = document.getElementById('step-4');
 
+        // Sidebar custom input for request_analyzer
+        const chatPasteArea = document.getElementById('chat-paste-area');
+        const chatTextInput = document.getElementById('chat-text-input');
+        const uploadCardTitle = document.getElementById('upload-card-title');
+        const uploadCardIcon = document.getElementById('upload-card-icon');
+
         // Result displays
         const dynamicMetaGrid = document.getElementById('dynamic-meta-grid');
         const dynamicAddressesGrid = document.getElementById('dynamic-addresses-grid');
+        const dynamicTableContainer = document.getElementById('dynamic-table-container');
         const tableHead = document.getElementById('table-head');
         const tableBody = document.getElementById('table-body');
         const tableTitle = document.getElementById('table-title');
         const valNotes = document.getElementById('val-notes');
         const jsonBox = document.getElementById('json-box');
         const historyBox = document.getElementById('history-box');
+
+        // Custom Booking confirmation elements
+        const bookingConfirmBox = document.getElementById('booking-confirm-box');
+        const valConfirmText = document.getElementById('val-confirm-text');
+        const btnCopyConfirm = document.getElementById('btn-copy-confirm');
 
         // Action Buttons
         const btnCopyTable = document.getElementById('btn-copy-table');
@@ -1201,6 +1301,22 @@
                     document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('active'));
                     card.classList.add('active');
                     activeDocType = card.getAttribute('data-type');
+                    
+                    // Toggle upload card UI based on type
+                    if (activeDocType === 'request_analyzer') {
+                        uploadCardTitle.textContent = "Nội dung yêu cầu khách hàng";
+                        uploadCardIcon.setAttribute('data-lucide', 'message-square-plus');
+                        chatPasteArea.style.display = 'block';
+                        btnProcessDoc.disabled = false; // Enabled because user can type text directly
+                    } else {
+                        uploadCardTitle.textContent = "Tải chứng từ lên";
+                        uploadCardIcon.setAttribute('data-lucide', 'file-image');
+                        chatPasteArea.style.display = 'none';
+                        if (!selectedFileBase64) {
+                            btnProcessDoc.disabled = true;
+                        }
+                    }
+                    lucide.createIcons();
                 });
             });
 
@@ -1256,7 +1372,9 @@
                 fileInput.value = '';
                 previewBox.style.display = 'none';
                 dropZone.style.display = 'flex';
-                btnProcessDoc.disabled = true;
+                if (activeDocType !== 'request_analyzer') {
+                    btnProcessDoc.disabled = true;
+                }
             });
 
             // Switch workspace tabs
@@ -1277,6 +1395,13 @@
             btnExportCsv.addEventListener('click', exportTableToCsv);
             btnCopyJson.addEventListener('click', copyJsonToClipboard);
             btnClearHistory.addEventListener('click', clearAllHistory);
+            
+            // Booking Confirmation Copy
+            btnCopyConfirm.addEventListener('click', () => {
+                navigator.clipboard.writeText(valConfirmText.value).then(() => {
+                    showToast("Đã sao chép tin nhắn xác nhận booking!");
+                });
+            });
         }
 
         // File compression & preview
@@ -1347,9 +1472,46 @@
                 return;
             }
 
-            if (!selectedFileBase64) {
-                showToast("Hãy tải ảnh chứng từ lên trước!");
-                return;
+            // Input payload builder based on document type
+            let userContent = [];
+
+            if (activeDocType === 'request_analyzer') {
+                const textInput = chatTextInput.value.trim();
+                if (selectedFileBase64) {
+                    userContent.push({
+                        type: 'text',
+                        text: textInput ? `Đoạn chat/nội dung bổ sung: ${textInput}` : 'Hãy phân tích tin nhắn/yêu cầu lên đơn trong ảnh chụp màn hình sau:'
+                    });
+                    userContent.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: `data:image/jpeg;base64,${selectedFileBase64}`
+                        }
+                    });
+                } else if (textInput) {
+                    userContent.push({
+                        type: 'text',
+                        text: `Hãy phân tích nội dung yêu cầu đặt dịch vụ vận chuyển sau và chuyển đổi thành thông tin đơn hàng:\n\n${textInput}`
+                    });
+                } else {
+                    showToast("Hãy tải ảnh chụp màn hình Zalo hoặc dán đoạn chat yêu cầu vào ô tương ứng!");
+                    return;
+                }
+            } else {
+                if (!selectedFileBase64) {
+                    showToast("Hãy tải ảnh chứng từ lên trước!");
+                    return;
+                }
+                userContent.push({
+                    type: 'text',
+                    text: `Hãy trích xuất hình ảnh chứng từ logistics sau theo đúng định dạng được yêu cầu.`
+                });
+                userContent.push({
+                    type: 'image_url',
+                    image_url: {
+                        url: `data:image/jpeg;base64,${selectedFileBase64}`
+                    }
+                });
             }
 
             emptyView.style.display = 'none';
@@ -1388,18 +1550,7 @@
                             },
                             {
                                 role: 'user',
-                                content: [
-                                    {
-                                        type: 'text',
-                                        text: `Hãy trích xuất hình ảnh chứng từ logistics sau theo đúng định dạng được yêu cầu.`
-                                    },
-                                    {
-                                        type: 'image_url',
-                                        image_url: {
-                                            url: `data:image/jpeg;base64,${selectedFileBase64}`
-                                        }
-                                    }
-                                ]
+                                content: userContent
                             }
                         ]
                     })
@@ -1466,6 +1617,10 @@
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
             
+            // Toggle visibility defaults
+            dynamicTableContainer.style.display = 'block';
+            bookingConfirmBox.style.display = 'none';
+            
             // Set notes
             valNotes.textContent = currentExtractedData.notes || 'Không có thông tin ghi chú phụ.';
 
@@ -1477,6 +1632,8 @@
                 renderBillOfLadingLayout();
             } else if (activeDocType === 'co') {
                 renderCertificateOfOriginLayout();
+            } else if (activeDocType === 'request_analyzer') {
+                renderRequestAnalyzerLayout();
             }
 
             // Attach inline edit listeners to cells and metadata values
@@ -1597,7 +1754,7 @@
             tableHead.innerHTML = `
                 <tr>
                     <th style="width: 8%">Mã kiện</th>
-                    <th style="width: 35%">Mô tả hàng hóa (Dịch Việt)</th>
+                    <th style="width: 35%">Mô tả hàng đóng gói (Dịch Việt)</th>
                     <th style="width: 15%">Số lượng sp</th>
                     <th style="width: 14%">TL Tịnh NW (kg)</th>
                     <th style="width: 14%">TL Thô GW (kg)</th>
@@ -1657,7 +1814,6 @@
                 </div>
             `;
 
-            // Add POD to dynamicMetaGrid as well
             const extraMeta = document.createElement('div');
             extraMeta.className = 'meta-item';
             extraMeta.innerHTML = `
@@ -1669,7 +1825,7 @@
             tableHead.innerHTML = `
                 <tr>
                     <th style="width: 25%">Số Cont / Số Seal</th>
-                    <th style="width: 45%">Mô tả hàng hóa dịch nghĩa</th>
+                    <th style="width: 45%">Mô tả hàng hóa vận đơn</th>
                     <th style="width: 15%">Số lượng kiện</th>
                     <th style="width: 15%">Trọng lượng thô (GW)</th>
                 </tr>
@@ -1752,21 +1908,140 @@
             }
         }
 
-        // Inline Table Edits
+        // 5. CLIENT REQUEST ANALYZER LAYOUT
+        function renderRequestAnalyzerLayout() {
+            tableTitle.textContent = "Thông số booking đơn hàng chi tiết";
+            dynamicTableContainer.style.display = 'block';
+            bookingConfirmBox.style.display = 'block';
+
+            // Meta cards
+            dynamicMetaGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Khách hàng</span>
+                    <span class="meta-val" contenteditable="true" data-key="customer_name" id="b-cust-name">${escapeHtml(currentExtractedData.customer_name || 'Khách vãng lai')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Kho nhận (TQ)</span>
+                    <span class="meta-val" contenteditable="true" data-key="pickup_location" id="b-pickup">${escapeHtml(currentExtractedData.pickup_location || 'N/A')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Kho giao (VN)</span>
+                    <span class="meta-val" contenteditable="true" data-key="delivery_location" id="b-delivery">${escapeHtml(currentExtractedData.delivery_location || 'N/A')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Hình thức vận chuyển</span>
+                    <span class="meta-val" contenteditable="true" data-key="shipping_method" id="b-method">${escapeHtml(currentExtractedData.shipping_method || 'Đường bộ')}</span>
+                </div>
+            `;
+
+            // Addresses row handles cargo and limits
+            dynamicAddressesGrid.innerHTML = `
+                <div class="meta-item">
+                    <span class="meta-label">Mô tả hàng hóa</span>
+                    <span class="meta-val" contenteditable="true" data-key="cargo_description" id="b-desc" style="font-size: 1rem; font-weight: 500;">${escapeHtml(currentExtractedData.cargo_description || 'N/A')}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Hạn giao hàng yêu cầu</span>
+                    <span class="meta-val" contenteditable="true" data-key="delivery_deadline" id="b-deadline" style="font-size: 1rem; font-weight: 500; color: #f59e0b;">${escapeHtml(currentExtractedData.delivery_deadline || 'Không có')}</span>
+                </div>
+            `;
+
+            // Table displays weight/volume parameters
+            tableHead.innerHTML = `
+                <tr>
+                    <th style="width: 40%">Quy cách / Số lượng</th>
+                    <th style="width: 30%">Trọng lượng (GW kg)</th>
+                    <th style="width: 30%">Thể tích (Volume CBM)</th>
+                </tr>
+            `;
+
+            // Insert single row for editable weight/volume
+            tableBody.innerHTML = `
+                <tr>
+                    <td contenteditable="true" class="editable-cell" data-field="quantity" id="b-qty">${escapeHtml(currentExtractedData.quantity || 'N/A')}</td>
+                    <td contenteditable="true" class="editable-cell" data-field="weight_kg" id="b-weight">${escapeHtml(currentExtractedData.weight_kg || '0')}</td>
+                    <td contenteditable="true" class="editable-cell" data-field="volume_cbm" id="b-volume">${escapeHtml(currentExtractedData.volume_cbm || '0')}</td>
+                </tr>
+            `;
+
+            // Setup confirmation message
+            generateConfirmationMessage();
+
+            // Listeners to regenerate confirmation text when editing
+            document.querySelectorAll('#dynamic-table-container td, #dynamic-meta-grid span, #dynamic-addresses-grid span').forEach(el => {
+                el.addEventListener('input', () => {
+                    setTimeout(syncAndRegenerateConfirmText, 50);
+                });
+            });
+        }
+
+        // Generate text confirmation for the customer
+        function generateConfirmationMessage() {
+            if (!currentExtractedData) return;
+            const c = currentExtractedData;
+            
+            const msg = `Kính gửi ${c.customer_name || 'anh/chị'}, em xin gửi thông tin xác nhận lại booking vận chuyển:
+- Mặt hàng: ${c.cargo_description || 'N/A'}
+- Quy cách: ${c.quantity || 'N/A'}
+- Trọng lượng: ${c.weight_kg || '0'} kg
+- Thể tích: ${c.volume_cbm || '0'} CBM
+- Tuyến đi: ${c.pickup_location || 'N/A'} ➔ ${c.delivery_location || 'N/A'}
+- Hình thức: ${c.shipping_method || 'N/A'}
+- Yêu cầu hạn giao: ${c.delivery_deadline || 'N/A'}
+${c.notes ? `- Lưu ý thêm: ${c.notes}` : ''}
+Cảm ơn anh/chị đã tin tưởng và sử dụng dịch vụ!`;
+
+            valConfirmText.value = msg;
+        }
+
+        function syncAndRegenerateConfirmText() {
+            // Read values directly from UI to keep it fast
+            const cust = document.getElementById('b-cust-name')?.textContent.trim();
+            const pick = document.getElementById('b-pickup')?.textContent.trim();
+            const del = document.getElementById('b-delivery')?.textContent.trim();
+            const meth = document.getElementById('b-method')?.textContent.trim();
+            const desc = document.getElementById('b-desc')?.textContent.trim();
+            const dead = document.getElementById('b-deadline')?.textContent.trim();
+            const qty = document.getElementById('b-qty')?.textContent.trim();
+            const weight = document.getElementById('b-weight')?.textContent.trim();
+            const vol = document.getElementById('b-volume')?.textContent.trim();
+
+            if (currentExtractedData) {
+                currentExtractedData.customer_name = cust;
+                currentExtractedData.pickup_location = pick;
+                currentExtractedData.delivery_location = del;
+                currentExtractedData.shipping_method = meth;
+                currentExtractedData.cargo_description = desc;
+                currentExtractedData.delivery_deadline = dead;
+                currentExtractedData.quantity = qty;
+                currentExtractedData.weight_kg = weight;
+                currentExtractedData.volume_cbm = vol;
+                
+                generateConfirmationMessage();
+                jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
+            }
+        }
+
+        // Inline Table Edits for grids
         function handleCellEdit(e) {
             const field = e.target.getAttribute('data-field');
             const idx = parseInt(e.target.getAttribute('data-index'));
             let value = e.target.textContent.trim();
+
+            if (activeDocType === 'request_analyzer') {
+                currentExtractedData[field] = value;
+                generateConfirmationMessage();
+                jsonBox.textContent = JSON.stringify(currentExtractedData, null, 2);
+                return;
+            }
 
             if (activeDocType === 'invoice' && (field === 'price' || field === 'total')) {
                 value = parseFloat(value) || 0;
                 e.target.textContent = value.toFixed(2);
             }
 
-            // Sync with local state
             currentExtractedData.items[idx][field] = value;
 
-            // Auto total sum for invoice
             if (activeDocType === 'invoice' && field === 'total') {
                 let sum = 0;
                 currentExtractedData.items.forEach(it => {
@@ -1774,7 +2049,7 @@
                 });
                 if (sum > 0) {
                     currentExtractedData.total_amount = sum;
-                    renderDynamicResults(); // Reload display
+                    renderDynamicResults();
                 }
             }
 
@@ -1804,10 +2079,17 @@
         // Scan history cache management
         function saveToHistory(data, docType) {
             const docName = document.querySelector(`.doc-type-card[data-type="${docType}"] .doc-type-title`).textContent;
+            let displayFileName = fileInput.files[0]?.name;
+            if (docType === 'request_analyzer' && !displayFileName) {
+                displayFileName = `Booking: ${data.customer_name || 'Khách hàng'}`;
+            } else if (!displayFileName) {
+                displayFileName = 'Tài liệu tải lên';
+            }
+
             const historyItem = {
                 id: Date.now(),
                 date_scanned: new Date().toLocaleString('vi-VN'),
-                file_name: fileInput.files[0]?.name || 'Tài liệu tải lên',
+                file_name: displayFileName,
                 doc_type: docType,
                 doc_type_name: docName,
                 extracted: data
@@ -1835,11 +2117,13 @@
                 if (item.doc_type === 'invoice') {
                     detailText = `${formatCurrency(item.extracted.total_amount)} ${item.extracted.currency || 'CNY'}`;
                 } else if (item.doc_type === 'packing_list') {
-                    detailText = `${item.extracted.total_packages || 'N/A Kiện'} - ${item.extracted.total_gross_weight || 'N/A Weight'}`;
+                    detailText = `${item.extracted.total_packages || 'N/A Kiện'} - ${item.extracted.total_gross_weight || 'N/A GW'}`;
                 } else if (item.doc_type === 'bill_of_lading') {
                     detailText = `BL: ${item.extracted.bl_number || 'N/A'}`;
                 } else if (item.doc_type === 'co') {
                     detailText = `${item.extracted.co_form || 'C/O'}: ${item.extracted.co_number || 'N/A'}`;
+                } else if (item.doc_type === 'request_analyzer') {
+                    detailText = `Hàng: ${item.extracted.cargo_description || 'N/A'} - ${item.extracted.quantity || ''}`;
                 }
 
                 card.innerHTML = `
@@ -1872,7 +2156,21 @@
 
                 // Sync UI select card active states
                 document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('active'));
-                document.querySelector(`.doc-type-card[data-type="${activeDocType}"]`).classList.add('active');
+                const targetCard = document.querySelector(`.doc-type-card[data-type="${activeDocType}"]`);
+                if (targetCard) targetCard.classList.add('active');
+
+                // Toggle sidebar layouts
+                if (activeDocType === 'request_analyzer') {
+                    uploadCardTitle.textContent = "Nội dung yêu cầu khách hàng";
+                    chatPasteArea.style.display = 'block';
+                    btnProcessDoc.disabled = false;
+                } else {
+                    uploadCardTitle.textContent = "Tải chứng từ lên";
+                    chatPasteArea.style.display = 'none';
+                    if (!selectedFileBase64) {
+                        btnProcessDoc.disabled = true;
+                    }
+                }
 
                 renderDynamicResults();
 
@@ -1908,30 +2206,33 @@
 
         // Copy dynamic table to clipboard
         function copyTableToClipboard() {
-            if (!currentExtractedData || !currentExtractedData.items) return;
+            if (!currentExtractedData) return;
 
             let tsvContent = '';
 
-            if (activeDocType === 'invoice') {
+            if (activeDocType === 'invoice' && currentExtractedData.items) {
                 tsvContent = "STT\tTên gốc\tTên dịch Việt\tSố lượng\tĐơn giá\tThành tiền\n";
                 currentExtractedData.items.forEach((item, index) => {
                     tsvContent += `${index + 1}\t${item.original_name}\t${item.translated_name}\t${item.quantity}\t${item.price}\t${item.total}\n`;
                 });
-            } else if (activeDocType === 'packing_list') {
+            } else if (activeDocType === 'packing_list' && currentExtractedData.items) {
                 tsvContent = "Mã kiện\tMô tả hàng dịch\tSố lượng sản phẩm\tTrọng lượng NW (kg)\tTrọng lượng GW (kg)\tKích thước/Thể tích\n";
                 currentExtractedData.items.forEach(item => {
                     tsvContent += `${item.package_no}\t${item.description}\t${item.quantity}\t${item.net_weight}\t${item.gross_weight}\t${item.dimensions}\n`;
                 });
-            } else if (activeDocType === 'bill_of_lading') {
+            } else if (activeDocType === 'bill_of_lading' && currentExtractedData.items) {
                 tsvContent = "Số Cont/Seal\tMô tả hàng hóa\tSố kiện/Loại kiện\tTrọng lượng GW\tThể tích CBM\n";
                 currentExtractedData.items.forEach(item => {
                     tsvContent += `${item.container_seal}\t${item.description}\t${item.quantity}\t${item.weight}\t${item.volume || ''}\n`;
                 });
-            } else if (activeDocType === 'co') {
+            } else if (activeDocType === 'co' && currentExtractedData.items) {
                 tsvContent = "STT\tMô tả hàng hóa\tHS Code\tTiêu chí xuất xứ\tHóa đơn đính kèm\n";
                 currentExtractedData.items.forEach(item => {
                     tsvContent += `${item.item_no}\t${item.description}\t${item.hs_code}\t${item.origin_criterion}\t${item.invoice_info}\n`;
                 });
+            } else if (activeDocType === 'request_analyzer') {
+                tsvContent = "Quy cách / Số lượng\tTrọng lượng (GW)\tThể tích (CBM)\n";
+                tsvContent += `${currentExtractedData.quantity || 'N/A'}\t${currentExtractedData.weight_kg || '0'}\t${currentExtractedData.volume_cbm || '0'}\n`;
             }
 
             navigator.clipboard.writeText(tsvContent).then(() => {
@@ -1943,11 +2244,11 @@
 
         // Export data to CSV
         function exportTableToCsv() {
-            if (!currentExtractedData || !currentExtractedData.items) return;
+            if (!currentExtractedData) return;
 
             let csvContent = "\ufeff"; // BOM UTF-8
 
-            if (activeDocType === 'invoice') {
+            if (activeDocType === 'invoice' && currentExtractedData.items) {
                 csvContent += "STT,Tên hàng gốc,Tên dịch tiếng Việt,Số lượng,Đơn giá,Thành tiền\n";
                 currentExtractedData.items.forEach((item, index) => {
                     csvContent += `${index + 1},"${item.original_name.replace(/"/g, '""')}"` +
@@ -1958,7 +2259,7 @@
                 csvContent += `Ngày hóa đơn,,${currentExtractedData.date || ''}\n`;
                 csvContent += `Số hóa đơn,,${currentExtractedData.invoice_number || ''}\n`;
             } 
-            else if (activeDocType === 'packing_list') {
+            else if (activeDocType === 'packing_list' && currentExtractedData.items) {
                 csvContent += "Mã kiện,Mô tả đóng gói dịch Việt,Số lượng,TL Tịnh NW (kg),TL Thô GW (kg),Thể tích/Kích thước\n";
                 currentExtractedData.items.forEach(item => {
                     csvContent += `"${item.package_no.replace(/"/g, '""')}"` +
@@ -1972,7 +2273,7 @@
                 csvContent += `Tổng trọng lượng Gross,,${currentExtractedData.total_gross_weight || ''}\n`;
                 csvContent += `Tổng thể tích CBM,,${currentExtractedData.total_volume || ''}\n`;
             } 
-            else if (activeDocType === 'bill_of_lading') {
+            else if (activeDocType === 'bill_of_lading' && currentExtractedData.items) {
                 csvContent += "Số Cont/Seal,Mô tả hàng hóa vận đơn,Số lượng kiện,Trọng lượng GW,Thể tích CBM\n";
                 currentExtractedData.items.forEach(item => {
                     csvContent += `"${item.container_seal.replace(/"/g, '""')}"` +
@@ -1987,7 +2288,7 @@
                 csvContent += `Cảng bốc POL,,${currentExtractedData.port_loading || ''}\n`;
                 csvContent += `Cảng dỡ POD,,${currentExtractedData.port_discharge || ''}\n`;
             } 
-            else if (activeDocType === 'co') {
+            else if (activeDocType === 'co' && currentExtractedData.items) {
                 csvContent += "Mục,Mô tả hàng hóa,Mã HS Code,Tiêu chí xuất xứ,Hóa đơn đính kèm\n";
                 currentExtractedData.items.forEach(item => {
                     csvContent += `"${(item.item_no || '').toString().replace(/"/g, '""')}"` +
@@ -2001,12 +2302,26 @@
                 csvContent += `Nước xuất xứ,,${currentExtractedData.country_origin || ''}\n`;
                 csvContent += `Nước nhập khẩu,,${currentExtractedData.country_destination || ''}\n`;
             }
+            else if (activeDocType === 'request_analyzer') {
+                csvContent += "Mục,Giá trị trích xuất\n";
+                csvContent += `Khách hàng,"${(currentExtractedData.customer_name || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Kho nhận TQ,"${(currentExtractedData.pickup_location || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Kho giao VN,"${(currentExtractedData.delivery_location || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Phương thức vận chuyển,"${(currentExtractedData.shipping_method || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Mô tả hàng hóa,"${(currentExtractedData.cargo_description || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Quy cách đóng gói,"${(currentExtractedData.quantity || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Trọng lượng (kg),"${(currentExtractedData.weight_kg || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Thể tích (CBM),"${(currentExtractedData.volume_cbm || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Hạn giao hàng,"${(currentExtractedData.delivery_deadline || '').replace(/"/g, '""')}"\n`;
+                csvContent += `Ghi chú,"${(currentExtractedData.notes || '').replace(/"/g, '""')}"\n`;
+            }
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             
-            const fileName = `Dich_${activeDocType}_${currentExtractedData.invoice_number || currentExtractedData.bl_number || currentExtractedData.co_number || Date.now()}.csv`;
+            const fileRef = currentExtractedData.invoice_number || currentExtractedData.bl_number || currentExtractedData.co_number || currentExtractedData.customer_name || Date.now();
+            const fileName = `Booking_${activeDocType}_${fileRef}.csv`;
             link.setAttribute("href", url);
             link.setAttribute("download", fileName);
             link.style.visibility = 'hidden';
