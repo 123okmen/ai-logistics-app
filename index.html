@@ -1875,15 +1875,18 @@
         }
 
         function setStepStatus(stepEl, status) {
-            if (status === 'completed') {
-                stepEl.className = 'timeline-step completed';
-                stepEl.querySelector('i').setAttribute('data-lucide', 'check-circle-2');
-            } else if (status === 'active') {
-                stepEl.className = 'timeline-step active';
-                stepEl.querySelector('i').setAttribute('data-lucide', 'loader');
-            } else {
-                stepEl.className = 'timeline-step';
-                stepEl.querySelector('i').setAttribute('data-lucide', 'circle');
+            if (!stepEl) return;
+            const iconName = status === 'completed' ? 'check-circle-2' : (status === 'active' ? 'loader' : 'circle');
+            const statusClass = status === 'completed' ? 'timeline-step completed' : (status === 'active' ? 'timeline-step active' : 'timeline-step');
+            
+            stepEl.className = statusClass;
+            
+            // Get current icon (could be i or svg if Lucide already rendered it)
+            const iconEl = stepEl.querySelector('i, svg');
+            if (iconEl) {
+                const newIcon = document.createElement('i');
+                newIcon.setAttribute('data-lucide', iconName);
+                iconEl.replaceWith(newIcon);
             }
             lucide.createIcons();
         }
